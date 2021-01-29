@@ -4,10 +4,10 @@ const router = express.Router();
 const  { check } = require('express-validator');
 
 
-router.post('/', [check('nombre').not().isEmpty().trim().escape(),check('apellido').not().isEmpty().trim().escape(),check('foto').not().isEmpty().trim().escape(),check('direccion').not().isEmpty().trim().escape(),check('direccion').normalizeEmail().isEmail()], agregarUsuario);
+router.post('/', [check('nombre').not().isEmpty().trim().escape(),check('apellido').not().isEmpty().trim().escape(),check('foto').not().isEmpty().trim().escape(),check('direccion').not().isEmpty().trim().escape(),check('correo').normalizeEmail().isEmail()], agregarUsuario);
 router.get('/', getTodosUsuarios);
 router.get('/:id', getUsuarioPorId);
 router.delete('/:id', eliminarUsuario);
-router.patch('/:id', [check('nombre').not().isEmpty().trim().escape(),check('apellido').not().isEmpty().trim().escape(),check('foto').not().isEmpty().trim().escape(),check('direccion').not().isEmpty().trim().escape(),check('direccion').normalizeEmail().isEmail()], actualizarUsuario);
+router.patch('/:id', [check('nombre').not().isEmpty().trim().escape(),check('apellido').not().isEmpty().trim().escape(),check('foto').not().isEmpty().trim().escape(),check('direccion').not().isEmpty().trim().escape(),check('correo').normalizeEmail().isEmail()], actualizarUsuario);
 
 module.exports = router;

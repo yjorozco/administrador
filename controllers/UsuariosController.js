@@ -1,4 +1,4 @@
-const Roles = require('../models/Usuarios');
+const Usuarios = require('../models/Usuarios');
 const HttpError = require('../models/Error');
 const { validationResult } = require('express-validator');
 
@@ -6,7 +6,7 @@ const { validationResult } = require('express-validator');
 exports.getTodosUsuarios = async (req, res, next) => {
     try {
         const usuarios = await Usuarios.findAll();
-        res.status(201).json({
+        res.status(200).json({
             usuarios
         })
     } catch (e) {
@@ -61,7 +61,7 @@ exports.getUsuarioPorId = async (req, res, next) => {
     const id = await req.params.id;
     let usuario;
     try {
-        usuaro = await Usuarios.findOne({
+        usuario = await Usuarios.findOne({
             where: {
                 id
             }
@@ -70,11 +70,11 @@ exports.getUsuarioPorId = async (req, res, next) => {
         const error = new HttpError('hay un error, no se puede encontrar el usuario', 500);
         return next(error);
     }
-    if (!rol) {
+    if (!usuario) {
         const error = next(new HttpError('no se puede encontrar el usuario con el id suministrado', 404));
         return next(error);
     }
-    res.status(201).json({ usuario });
+    res.status(200).json({ usuario });
 }
 
 exports.actualizarUsuario = async (req, res, next) => {
@@ -107,7 +107,7 @@ exports.actualizarUsuario = async (req, res, next) => {
         const error = new HttpError('hay un error, no se puede encontrar el usuario', 500);
         return next(error);
     }
-    if (!rol) {
+    if (!usuario) {
         const error = next(new HttpError('no se puede encontrar el usuario con el id suministrado', 404));
         return next(error);
     }
@@ -123,9 +123,10 @@ exports.actualizarUsuario = async (req, res, next) => {
             {
                 where: { id }
             })
-        return res.status(201).json({
+        console.log(usuario);
+        return res.status(200).json({
             message: "Usuario actualizado",
-            rol
+            usuario
         })
     } catch (err) {
         const error = new HttpError('hay un error, no se puede encontrar el usuario', 500);

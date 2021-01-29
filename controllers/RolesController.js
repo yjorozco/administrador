@@ -6,7 +6,7 @@ const { validationResult } = require('express-validator');
 exports.getTodosRoles = async (req, res, next) => {
     try {
         const roles = await Roles.findAll();
-        res.status(201).json({
+        res.status(200).json({
             roles
         })
     } catch (e) {
@@ -58,7 +58,7 @@ exports.getRolPorId = async (req, res, next) => {
         const error = next(new HttpError('no se puede encontrar el rol con el id suministrado', 404));
         return next(error);
     }
-    res.status(201).json({ rol });
+    res.status(200).json({ rol });
 }
 
 exports.actualizarRol = async (req, res, next) => {

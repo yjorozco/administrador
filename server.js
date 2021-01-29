@@ -5,7 +5,8 @@ const app = express();
 const path = require('path');
 const HttpError = require('./models/Error');
 const rolesRouter =  require('./routes/roles-route');
-
+const permisosRouter =  require('./routes/permisos-route');
+const usuariosRouter =  require('./routes/usuarios-route');
 app.use(bodyParser.json());
 
 /*app.use('/uploads/images', express.static(path.join('uploads', 'images')));
@@ -31,6 +32,8 @@ if (process.env.NODE_ENV === 'production') {
 });*/
 
 app.use('/api/roles', rolesRouter);
+app.use('/api/permisos', permisosRouter);
+app.use('/api/usuarios', usuariosRouter);
 //app.use('/api/users', usersRouters);
 
 /*app.use((req, res, next)=>{

@@ -1,4 +1,4 @@
-const Roles = require('../models/Permisos');
+const Permisos = require('../models/Permisos');
 const HttpError = require('../models/Error');
 const { validationResult } = require('express-validator');
 
@@ -6,7 +6,7 @@ const { validationResult } = require('express-validator');
 exports.getTodosPermisos = async (req, res, next) => {
     try {
         const permisos = await Permisos.findAll();
-        res.status(201).json({
+        res.status(200).json({
             permisos
         })
     } catch (e) {
@@ -31,7 +31,7 @@ exports.agregarPermiso = async (req, res, next) => {
                 'nombre'
             ]
         })
-        res.status(201).json({ mensaje: 'permiso creado', permiso });
+        res.status(200).json({ mensaje: 'permiso creado', permiso });
     } catch (e) {
         console.log(e);
         const error = new HttpError('No se pueden crear los permiso', 422);
@@ -45,7 +45,7 @@ exports.getPermisoPorId = async (req, res, next) => {
     const id = await req.params.id;
     let permiso;
     try {
-        permiso = await Roles.findOne({
+        permiso = await Permisos.findOne({
             where: {
                 id
             }
@@ -58,12 +58,12 @@ exports.getPermisoPorId = async (req, res, next) => {
         const error = next(new HttpError('no se puede encontrar el permiso con el id suministrado', 404));
         return next(error);
     }
-    res.status(201).json({ permiso });
+    res.status(200).json({ permiso });
 }
 
 exports.actualizarPermiso = async (req, res, next) => {
     const { id } = await req.params;
-    const { nombre } = req.body;
+    const { nombre } = await req.body;
     let permiso;
     try {
         permiso = await Permisos.findOne({
@@ -72,7 +72,7 @@ exports.actualizarPermiso = async (req, res, next) => {
                 id
             }
         })
-
+        console.log(permiso);
     }catch(e){
         const error = new HttpError('hay un error, no se puede encontrar el permiso', 500);
         return next(error);
@@ -88,12 +88,12 @@ exports.actualizarPermiso = async (req, res, next) => {
             {
                 where: { id }
             })
-        return res.status(201).json({
+        return res.status(200).json({
             message: "Permiso actualizado",
-            rol
+            permiso
         })
     } catch (err) {
-        const error = new HttpError('hay un error, no se puede encontrar el permiso', 500);
+        const error = new HttpError('hay un error, no se puede actualizar el permiso', 500);
         return next(error);
     }
 
