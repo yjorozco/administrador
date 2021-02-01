@@ -3,7 +3,7 @@ const HttpError = require('../models/Error');
 const { validationResult } = require('express-validator');
 
 
-exports.getTodosUsuarios = async (req, res, next) => {
+exports.getTodosUsuariosRoles = async (req, res, next) => {
     try {
         const usuarios = await Usuarios.findAll();
         res.status(200).json({

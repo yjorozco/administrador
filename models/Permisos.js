@@ -14,4 +14,5 @@ const Permisos = sequelize.define('permisos', {
     timestamps: false
 });
 
+
 module.exports = Permisos;

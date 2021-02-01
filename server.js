@@ -4,9 +4,9 @@ const bodyParser = require('body-parser');
 const app = express();
 const path = require('path');
 const HttpError = require('./models/Error');
-const rolesRouter =  require('./routes/roles-route');
-const permisosRouter =  require('./routes/permisos-route');
-const usuariosRouter =  require('./routes/usuarios-route');
+const rolesRouter = require('./routes/roles-route');
+const permisosRouter = require('./routes/permisos-route');
+const usuariosRouter = require('./routes/usuarios-route');
 app.use(bodyParser.json());
 
 /*app.use('/uploads/images', express.static(path.join('uploads', 'images')));
@@ -59,6 +59,11 @@ app.use('/api/usuarios', usuariosRouter);
     res.status(error.code || 500)
     res.json({ message: error.message } || 'An unknow error occurred!');
 })*/
+
+app.use((error, req, res, next) => {
+    res.status(error.code || 500)
+    res.json({ message: error.message } || 'An unknow error occurred!');
+})
 
 const PORT = process.env.PORT || 5000;
 

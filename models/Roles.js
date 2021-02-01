@@ -1,6 +1,7 @@
 const Sequelize = require('sequelize');
 const  sequelize = require('../database/database');
 
+
 const Roles = sequelize.define('roles', {
     id: {
         type: Sequelize.INTEGER,
@@ -13,5 +14,8 @@ const Roles = sequelize.define('roles', {
 }, {
     timestamps: false
 });
+
+
+
 
 module.exports = Roles;

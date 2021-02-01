@@ -24,7 +24,7 @@ exports.agregarPermiso = async (req, res, next) => {
             next(new HttpError('Datos invalidos', 422));
         }
         const { nombre } = req.body;
-        const  permiso = await Permisos.create({
+        const permiso = await Permisos.create({
             nombre
         }, {
             fields: [
@@ -34,7 +34,7 @@ exports.agregarPermiso = async (req, res, next) => {
         res.status(200).json({ mensaje: 'permiso creado', permiso });
     } catch (e) {
         console.log(e);
-        const error = new HttpError('No se pueden crear los permiso', 422);
+        const error = new HttpError('No se pueden crear los permiso', 404);
         return next(error)
 
     }
@@ -65,7 +65,12 @@ exports.actualizarPermiso = async (req, res, next) => {
     const { id } = await req.params;
     const { nombre } = await req.body;
     let permiso;
+    const errors = validationResult(req);
     try {
+        if (!errors.isEmpty()) {
+            console.log(errors);
+            next(new HttpError('Datos invalidos', 422));
+        }
         permiso = await Permisos.findOne({
             attributes: ['nombre', 'id'],
             where: {
@@ -73,7 +78,7 @@ exports.actualizarPermiso = async (req, res, next) => {
             }
         })
         console.log(permiso);
-    }catch(e){
+    } catch (e) {
         const error = new HttpError('hay un error, no se puede encontrar el permiso', 500);
         return next(error);
     }
@@ -81,8 +86,8 @@ exports.actualizarPermiso = async (req, res, next) => {
         const error = next(new HttpError('no se puede encontrar el permiso con el id suministrado', 404));
         return next(error);
     }
-    try{
-        permiso= await Permisos.update({
+    try {
+        cantidad = await Permisos.update({
             nombre
         },
             {

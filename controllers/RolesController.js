@@ -63,9 +63,14 @@ exports.getRolPorId = async (req, res, next) => {
 
 exports.actualizarRol = async (req, res, next) => {
     const { id } = await req.params;
-    const { nombre } = req.body;
+    const { nombre } = await req.body;
+    const errors = validationResult(req);
     let rol
     try {
+        if (!errors.isEmpty()) {
+            console.log(errors);
+            next(new HttpError('Datos invalidos', 422));
+        }
         rol = await Roles.findOne({
             attributes: ['nombre', 'id'],
             where: {
@@ -88,7 +93,7 @@ exports.actualizarRol = async (req, res, next) => {
             {
                 where: { id }
             })
-        return res.status(201).json({
+        return res.status(200).json({
             message: "Rol actualizado",
             rol
         })
