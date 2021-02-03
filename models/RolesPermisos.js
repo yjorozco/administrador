@@ -26,6 +26,6 @@ const RolesPermisos = sequelize.define('roles_permisos', {
     timestamps: false
 });
 
-Roles.belongsToMany(Permisos, { through: RolesPermisos });
-Permisos.belongsToMany(Roles, { through: RolesPermisos });
+Roles.belongsToMany(Permisos, { through: RolesPermisos, foreignKey: 'id_roles'  });
+Permisos.belongsToMany(Roles, { through: RolesPermisos, foreignKey: 'id_permisos'  });
 module.exports = RolesPermisos;

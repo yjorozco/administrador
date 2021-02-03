@@ -1,7 +1,8 @@
 const Usuarios = require('../models/Usuarios');
 const HttpError = require('../models/Error');
 const { validationResult } = require('express-validator');
-
+const UsuariosRoles = require('./../models/UsuariosRoles')
+const sequelize = require('../database/database');
 
 exports.getTodosUsuarios = async (req, res, next) => {
     try {
@@ -18,6 +19,7 @@ exports.getTodosUsuarios = async (req, res, next) => {
 
 exports.agregarUsuario = async (req, res, next) => {
     const errors = validationResult(req);
+    const t = await sequelize.transaction();
     try {
         if (!errors.isEmpty()) {
             console.log(errors);
@@ -29,7 +31,9 @@ exports.agregarUsuario = async (req, res, next) => {
             foto,
             direccion,
             telefono,
-            correo } = req.body;
+            correo,
+            roles } = req.body;
+
         const usuario = await Usuarios.create({
             nombre,
             apellido,
@@ -45,11 +49,32 @@ exports.agregarUsuario = async (req, res, next) => {
                 'direccion',
                 'telefono',
                 'correo'
-            ]
+            ], transaction: t
         })
+
+        if (roles) {
+            for (const rol of roles) {
+                let usuariosRoles = await UsuariosRoles.create({
+                    id_usuarios: usuario.id,
+                    id_roles: rol
+                }, {
+                    fields: [
+                        'id_usuarios',
+                        'id_roles'
+                    ], transaction: t
+                })
+            }
+        }
+
+        await t.commit();
         res.status(201).json({ mensaje: 'usuario creado', usuario });
     } catch (e) {
         console.log(e);
+        try {
+            await t.rollback();
+        } catch (e) {
+            console.log(e);
+        }
         const error = new HttpError('No se puede crear el usuario', 422);
         return next(error)
 
@@ -80,13 +105,15 @@ exports.getUsuarioPorId = async (req, res, next) => {
 exports.actualizarUsuario = async (req, res, next) => {
     const { id } = await req.params;
     const errors = validationResult(req);
+    const t = await sequelize.transaction();
     const {
         nombre,
         apellido,
         foto,
         direccion,
         telefono,
-        correo } = req.body;
+        correo,
+        roles } = req.body;
     let usuario
     try {
         if (!errors.isEmpty()) {
@@ -117,7 +144,7 @@ exports.actualizarUsuario = async (req, res, next) => {
         return next(error);
     }
     try {
-        usuario = await Usuarios.update({
+        await Usuarios.update({
             nombre,
             apellido,
             foto,
@@ -126,33 +153,75 @@ exports.actualizarUsuario = async (req, res, next) => {
             correo
         },
             {
-                where: { id }
-            })
-        console.log(usuario);
+                where: { id },
+                transaction: t
+            });
+        console.log(usuario.id);
+        await UsuariosRoles.destroy({
+            where: {
+                id_usuarios: usuario.id
+            }
+            , transaction: t
+        });
+        if (roles) {
+            for (const rol of roles) {
+                let usuariosRoles = await UsuariosRoles.create({
+                    id_usuarios: usuario.id,
+                    id_roles: rol
+                }, {
+                    fields: [
+                        'id_usuarios',
+                        'id_roles'
+                    ], transaction: t
+                })
+            }
+        }
+
+        await t.commit();
         return res.status(200).json({
             message: "Usuario actualizado",
-            usuario
+            
         })
-    } catch (err) {
+    } catch (e) {
+        try {
+            await t.rollback();
+        } catch (e) {
+            console.log(e);
+        }
+        console.log(e);
         const error = new HttpError('hay un error, no se puede encontrar el usuario', 500);
         return next(error);
     }
 }
 
 exports.eliminarUsuario = async (req, res, next) => {
+    const t = await sequelize.transaction();
     try {
         const { id } = await req.params;
-        const cantidadEliminada = await Usuarios.destroy({
+        await UsuariosRoles.destroy({
+            where: {
+                id_usuarios: id
+            }
+            , transaction: t
+        });
+        await Usuarios.destroy({
             where: {
                 id
             }
+            , transaction: t
         })
-        res.json({
+        await t.commit();
+        res.status(201).json({
             message: 'Usuario eliminado de forma satisfactoria',
-            count: cantidadEliminada
+            // count: cantidadEliminada
         })
     } catch (e) {
         console.log(e);
+        try {
+            await t.rollback();
+        } catch (e) {
+            console.log(e);
+        }
         const error = new HttpError('el usuario no se puede eliminar', 500);
         return next(error);
     }

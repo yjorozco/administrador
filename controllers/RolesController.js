@@ -1,7 +1,8 @@
 const Roles = require('../models/Roles');
 const HttpError = require('../models/Error');
 const { validationResult } = require('express-validator');
-
+const RolesPermisos = require('./../models/RolesPermisos')
+const sequelize = require('../database/database');
 
 exports.getTodosRoles = async (req, res, next) => {
     try {
@@ -16,14 +17,15 @@ exports.getTodosRoles = async (req, res, next) => {
     }
 }
 
-exports.agregarRole = async (req, res, next) => {
+exports.agregarRol = async (req, res, next) => {
     const errors = validationResult(req);
+    const t = await sequelize.transaction();
     try {
         if (!errors.isEmpty()) {
             console.log(errors);
             next(new HttpError('Datos invalidos', 422));
         }
-        const { nombre } = req.body;
+        const { nombre, permisos } = req.body;
         const nuevoRol = await Roles.create({
             nombre
         }, {
@@ -31,9 +33,29 @@ exports.agregarRole = async (req, res, next) => {
                 'nombre'
             ]
         })
+        if (permisos) {
+            for (const permiso of permisos) {
+                let rolesPermisos = await RolesPermisos.create({
+                    id_permisos: permiso,
+                    id_roles: nuevoRol.id
+                }, {
+                    fields: [
+                        'id_permisos',
+                        'id_roles'
+                    ], transaction: t
+                })
+            }
+        }
+
+        await t.commit();
         res.status(201).json({ mensaje: 'rol creado', rol: nuevoRol });
     } catch (e) {
         console.log(e);
+        try {
+            await t.rollback();
+        } catch (e) {
+            console.log(e);
+        }
         const error = new HttpError('No se puede crear el rol', 422);
         return next(error)
 
@@ -63,8 +85,9 @@ exports.getRolPorId = async (req, res, next) => {
 
 exports.actualizarRol = async (req, res, next) => {
     const { id } = await req.params;
-    const { nombre } = await req.body;
+    const { nombre, permisos } = await req.body;
     const errors = validationResult(req);
+    const t = await sequelize.transaction();
     let rol
     try {
         if (!errors.isEmpty()) {
@@ -75,9 +98,8 @@ exports.actualizarRol = async (req, res, next) => {
             attributes: ['nombre', 'id'],
             where: {
                 id
-            }
+            }, transaction: t
         })
-
     } catch (e) {
         const error = new HttpError('hay un error, no se puede encontrar el rol', 500);
         return next(error);
@@ -87,36 +109,76 @@ exports.actualizarRol = async (req, res, next) => {
         return next(error);
     }
     try {
-        rol = await Roles.update({
+        await Roles.update({
             nombre
         },
             {
-                where: { id }
+                where: { id },
+                transaction: t
             })
+        await RolesPermisos.destroy({
+            where: {
+                id_roles: rol.id
+            }
+            , transaction: t
+        });
+        if (permisos) {
+            for (const permiso of permisos) {
+                let rolesPermisos = await RolesPermisos.create({
+                    id_permisos: permiso,
+                    id_roles: rol.id
+                }, {
+                    fields: [
+                        'id_permisos',
+                        'id_roles'
+                    ], transaction: t
+                })
+            }
+        }
+        await t.commit();
         return res.status(200).json({
-            message: "Rol actualizado",
-            rol
+            message: "Rol actualizado"
         })
-    } catch (err) {
+    } catch (e) {
+        console.log(e);
+        try {
+            await t.rollback();
+        } catch (e) {
+            console.log(e);
+        }
         const error = new HttpError('hay un error, no se puede encontrar el rol', 500);
         return next(error);
     }
 }
 
 exports.eliminarRol = async (req, res, next) => {
+    const t = await sequelize.transaction();
     try {
         const { id } = await req.params;
-        const cantidadEliminada = await Roles.destroy({
+
+        await RolesPermisos.destroy({
+            where: {
+                id_roles: id
+            }
+            , transaction: t
+        });
+        await Roles.destroy({
             where: {
                 id
-            }
+            }, transaction: t
         })
+        await t.commit();
         res.json({
             message: 'Rol eliminado de forma satisfactoria',
-            count: cantidadEliminada
         })
-    } catch (e) {
-        console.log(e);
+    } catch (err) {      
+        console.log(err); 
+        try {
+            await t.rollback();
+        } catch (e) {
+            console.log(e);
+        }
+      
         const error = new HttpError('el rol no se puede eliminar', 500);
         return next(error);
     }
