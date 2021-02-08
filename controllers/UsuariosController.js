@@ -3,6 +3,7 @@ const HttpError = require('../models/Error');
 const { validationResult } = require('express-validator');
 const UsuariosRoles = require('./../models/UsuariosRoles')
 const sequelize = require('../database/database');
+const bcrypt = require('bcrypt');
 
 exports.getTodosUsuarios = async (req, res, next) => {
     try {
@@ -32,15 +33,19 @@ exports.agregarUsuario = async (req, res, next) => {
             direccion,
             telefono,
             correo,
+            password,
             roles } = req.body;
-
+        
+        const passwordHash = await bcrypt.hash(password, 10);
+        console.log(passwordHash);
         const usuario = await Usuarios.create({
             nombre,
             apellido,
             foto,
             direccion,
             telefono,
-            correo
+            correo,
+            'password':passwordHash
         }, {
             fields: [
                 'nombre',
@@ -48,7 +53,8 @@ exports.agregarUsuario = async (req, res, next) => {
                 'foto',
                 'direccion',
                 'telefono',
-                'correo'
+                'correo',
+                'password'
             ], transaction: t
         })
 
@@ -113,8 +119,11 @@ exports.actualizarUsuario = async (req, res, next) => {
         direccion,
         telefono,
         correo,
+        password,
         roles } = req.body;
     let usuario
+
+    const passwordHash = await bcrypt.hash(password, 10);
     try {
         if (!errors.isEmpty()) {
             console.log(errors);
@@ -128,7 +137,8 @@ exports.actualizarUsuario = async (req, res, next) => {
                 'foto',
                 'direccion',
                 'telefono',
-                'correo'
+                'correo', 
+                'password'
             ],
             where: {
                 id
@@ -144,19 +154,23 @@ exports.actualizarUsuario = async (req, res, next) => {
         return next(error);
     }
     try {
-        await Usuarios.update({
+        
+        let cuerpo = {
             nombre,
             apellido,
             foto,
             direccion,
             telefono,
-            correo
-        },
+            correo,
+            'password':passwordHash
+        }
+        
+        if (password==='') delete cuerpo['password'];
+        await Usuarios.update(cuerpo,
             {
                 where: { id },
                 transaction: t
             });
-        console.log(usuario.id);
         await UsuariosRoles.destroy({
             where: {
                 id_usuarios: usuario.id

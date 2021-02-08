@@ -28,8 +28,11 @@ const Usuarios = sequelize.define('usuarios', {
     correo: {
         type: Sequelize.TEXT,
         allowNull: false
+    },
+    password: {
+        type: Sequelize.TEXT,
+        allowNull: false
     }
-
 }, {
     timestamps: false
 });
