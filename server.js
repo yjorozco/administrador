@@ -9,6 +9,7 @@ require('./auth/passport');
 const rolesRouter = require('./routes/roles-route');
 const permisosRouter = require('./routes/permisos-route');
 const usuariosRouter = require('./routes/usuarios-route');
+const usuariosFront = require('./routes/usuario-front-route');
 const auth = require('./auth/auth');
 
 
@@ -40,6 +41,7 @@ if (process.env.NODE_ENV === 'production') {
 app.use('/api/roles', passport.authenticate('jwt', {session: false}), rolesRouter);
 app.use('/api/permisos', passport.authenticate('jwt', {session: false}), permisosRouter);
 app.use('/api/usuarios', passport.authenticate('jwt', {session: false}), usuariosRouter);
+app.use('/api/front', usuariosFront);
 app.use('/api/auth', auth);
 
 //app.use('/api/auth', autenticacion);

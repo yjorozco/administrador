@@ -5,6 +5,7 @@ const UsuariosRoles = require('./../models/UsuariosRoles')
 const sequelize = require('../database/database');
 const bcrypt = require('bcrypt');
 
+
 exports.getTodosUsuarios = async (req, res, next) => {
     try {
         const usuarios = await Usuarios.findAll();
@@ -242,3 +243,51 @@ exports.eliminarUsuario = async (req, res, next) => {
 }
 
 
+exports.cambiarPassword =  async (req, res, next) => {
+    const errors = validationResult(req);
+    const t = await sequelize.transaction();
+    console.log(req.user);
+    try {
+        if (!errors.isEmpty()) {
+            console.log(errors);
+            next(new HttpError('Datos invalidos', 422));
+        }
+
+        const {
+            correo,
+            password
+        } = req.body;
+        const usuario = await Usuarios.findOne({
+            where: {
+                correo
+            }
+        })
+        if(!usuario){
+            const error = new HttpError('usuaro no existe', 404);
+            return next(error);
+        }
+        const nuevoPasswordHash = await bcrypt.hash(password, 10);
+        await Usuarios.update({password:nuevoPasswordHash},
+            {
+                where: { id:usuario.id },
+                transaction: t
+            });
+        
+
+        await t.commit();
+        return res.status(200).json({
+            message: "Password cambiado",
+            
+        })
+        
+    }catch (e) {
+        console.log(e);
+        try {
+            await t.rollback();
+        } catch (e) {
+            console.log(e);
+        }
+        const error = new HttpError('No se puede actualizar el password', 422);
+        return next(error)
+    }
+}

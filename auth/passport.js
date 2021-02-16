@@ -1,42 +1,46 @@
-const passport    = require('passport');
+const passport = require('passport');
 const passportJWT = require("passport-jwt");
 const Usuarios = require('../models/Usuarios');
 const ExtractJWT = passportJWT.ExtractJwt;
-
+const bcrypt = require('bcrypt');
 const LocalStrategy = require('passport-local').Strategy;
-const JWTStrategy   = passportJWT.Strategy;
+const JWTStrategy = passportJWT.Strategy;
 
 passport.use(new LocalStrategy({
-        usernameField: 'correo',
-        passwordField: 'password'
-    },
+    usernameField: 'correo',
+    passwordField: 'password'
+},
     function (correo, password, cb) {
-
-        //Assume there is a DB module pproviding a global UserModel
-        return Usuarios.findOne({correo, password})
+        return Usuarios.findOne({ where: { correo } })
             .then(user => {
+
                 if (!user) {
-                    return cb(null, false, {message: 'Incorrect email or password.'});
+                    return cb(null, false, { message: 'Incorrect email' });
                 }
 
-                return cb(null, user, {
-                    message: 'Logged In Successfully'
+                bcrypt.compare(password, user.password).then(function (result) {
+                    if (result) {
+                        return cb(null, user, {
+                            message: 'Logged In Successfully'
+                        });
+                    } else {
+                        return cb(null, false, { message: 'Incorrect password.' });
+                    }
                 });
+
             })
             .catch(err => {
                 return cb(err);
             });
+
     }
 ));
 
 passport.use(new JWTStrategy({
-        jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
-        secretOrKey   : 'your_jwt_secret'
-    },
+    jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+    secretOrKey: 'your_jwt_secret'
+},
     function (jwtPayload, cb) {
-
-        //find the user in db if needed
-        console.log(jwtPayload);
         return Usuarios.findOne(jwtPayload.id)
             .then(user => {
                 return cb(null, user);

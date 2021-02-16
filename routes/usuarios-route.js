@@ -1,5 +1,5 @@
 const express= require('express');
-const { agregarUsuario, getTodosUsuarios, getUsuarioPorId, actualizarUsuario, eliminarUsuario } = require('../controllers/UsuariosController');
+const { agregarUsuario, getTodosUsuarios, getUsuarioPorId, actualizarUsuario, eliminarUsuario, cambiarPassword } = require('../controllers/UsuariosController');
 const router = express.Router();
 const  { check } = require('express-validator');
 
@@ -8,5 +8,6 @@ router.get('/', getTodosUsuarios);
 router.get('/:id', getUsuarioPorId);
 router.delete('/:id', eliminarUsuario);
 router.patch('/:id', [check('nombre').not().isEmpty().trim().escape(),check('apellido').not().isEmpty().trim().escape(),check('foto').not().isEmpty().trim().escape(),check('direccion').not().isEmpty().trim().escape(),check('correo').normalizeEmail().isEmail(), check('password').trim().escape()], actualizarUsuario);
+router.post('/cambio', [check('correo').not().isEmpty().trim().escape(),check('password').not().isEmpty().trim().escape()], cambiarPassword);
 
 module.exports = router;
