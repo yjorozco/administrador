@@ -4,7 +4,7 @@ const { validationResult } = require('express-validator');
 const UsuariosRoles = require('./../models/UsuariosRoles')
 const sequelize = require('../database/database');
 const bcrypt = require('bcrypt');
-
+const fs = require('fs');
 
 exports.getTodosUsuarios = async (req, res, next) => {
     try {
@@ -36,9 +36,8 @@ exports.agregarUsuario = async (req, res, next) => {
             correo,
             password,
             roles } = req.body;
-        
+
         const passwordHash = await bcrypt.hash(password, 10);
-        console.log(passwordHash);
         const usuario = await Usuarios.create({
             nombre,
             apellido,
@@ -46,7 +45,7 @@ exports.agregarUsuario = async (req, res, next) => {
             direccion,
             telefono,
             correo,
-            'password':passwordHash
+            'password': passwordHash
         }, {
             fields: [
                 'nombre',
@@ -113,6 +112,7 @@ exports.actualizarUsuario = async (req, res, next) => {
     const { id } = await req.params;
     const errors = validationResult(req);
     const t = await sequelize.transaction();
+    
     const {
         nombre,
         apellido,
@@ -122,8 +122,8 @@ exports.actualizarUsuario = async (req, res, next) => {
         correo,
         password,
         roles } = req.body;
-    let usuario
-
+    let usuario;
+    let fotoVieja;
     const passwordHash = await bcrypt.hash(password, 10);
     try {
         if (!errors.isEmpty()) {
@@ -138,13 +138,14 @@ exports.actualizarUsuario = async (req, res, next) => {
                 'foto',
                 'direccion',
                 'telefono',
-                'correo', 
+                'correo',
                 'password'
             ],
             where: {
                 id
             }
         })
+        fotoVieja = usuario.foto;
 
     } catch (e) {
         const error = new HttpError('hay un error, no se puede encontrar el usuario', 500);
@@ -155,7 +156,7 @@ exports.actualizarUsuario = async (req, res, next) => {
         return next(error);
     }
     try {
-        
+
         let cuerpo = {
             nombre,
             apellido,
@@ -163,10 +164,10 @@ exports.actualizarUsuario = async (req, res, next) => {
             direccion,
             telefono,
             correo,
-            'password':passwordHash
+            'password': passwordHash
         }
-        
-        if (password==='') delete cuerpo['password'];
+
+        if (password === '') delete cuerpo['password'];
         await Usuarios.update(cuerpo,
             {
                 where: { id },
@@ -193,9 +194,10 @@ exports.actualizarUsuario = async (req, res, next) => {
         }
 
         await t.commit();
+        if (foto && foto != fotoVieja) fs.unlinkSync('../upload/' + fotoVieja);
         return res.status(200).json({
             message: "Usuario actualizado",
-            
+
         })
     } catch (e) {
         try {
@@ -213,6 +215,19 @@ exports.eliminarUsuario = async (req, res, next) => {
     const t = await sequelize.transaction();
     try {
         const { id } = await req.params;
+        if(!id) new Error("el id no debe estar nulo");
+        const usuario = Usuarios.findOne({
+            attributes: [
+                'id',
+                'nombre',
+                'apellido',
+                'foto',
+            ],
+            where: {
+                id
+            }
+        });
+        const fotoVieja = usuario.foto;
         await UsuariosRoles.destroy({
             where: {
                 id_usuarios: id
@@ -226,6 +241,7 @@ exports.eliminarUsuario = async (req, res, next) => {
             , transaction: t
         })
         await t.commit();
+        if (fotoVieja) fs.unlinkSync('../upload/' + fotoVieja);
         res.status(201).json({
             message: 'Usuario eliminado de forma satisfactoria',
             // count: cantidadEliminada
@@ -243,10 +259,9 @@ exports.eliminarUsuario = async (req, res, next) => {
 }
 
 
-exports.cambiarPassword =  async (req, res, next) => {
+exports.cambiarPassword = async (req, res, next) => {
     const errors = validationResult(req);
     const t = await sequelize.transaction();
-    console.log(req.user);
     try {
         if (!errors.isEmpty()) {
             console.log(errors);
@@ -262,25 +277,25 @@ exports.cambiarPassword =  async (req, res, next) => {
                 correo
             }
         })
-        if(!usuario){
+        if (!usuario) {
             const error = new HttpError('usuaro no existe', 404);
             return next(error);
         }
         const nuevoPasswordHash = await bcrypt.hash(password, 10);
-        await Usuarios.update({password:nuevoPasswordHash},
+        await Usuarios.update({ password: nuevoPasswordHash },
             {
-                where: { id:usuario.id },
+                where: { id: usuario.id },
                 transaction: t
             });
-        
+
 
         await t.commit();
         return res.status(200).json({
             message: "Password cambiado",
-            
+
         })
-        
-    }catch (e) {
+
+    } catch (e) {
         console.log(e);
         try {
             await t.rollback();
@@ -288,6 +303,21 @@ exports.cambiarPassword =  async (req, res, next) => {
             console.log(e);
         }
         const error = new HttpError('No se puede actualizar el password', 422);
+        return next(error)
+    }
+}
+
+exports.salvarImagen = async (req, res, next) => {
+    try {
+
+        return res.status(200).json({
+            message: "Imagen almacenada",
+            nombre: req.file.filename
+        })
+
+    } catch (e) {
+        console.log(e);
+        const error = new HttpError('No se puede guardar la imagen', 422);
         return next(error)
     }
 }
