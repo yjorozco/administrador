@@ -11,7 +11,7 @@ passport.use(new LocalStrategy({
     passwordField: 'password'
 },
     function (correo, password, cb) {
-        return Usuarios.findOne({ where: { correo } })
+        return Usuarios.findOne({ where: { correo, activo:true } })
             .then(user => {
 
                 if (!user) {

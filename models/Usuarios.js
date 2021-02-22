@@ -1,41 +1,66 @@
-const Sequelize = require('sequelize');
-const sequelize = require('../database/database');
+const { Model } = require('sequelize');
 
-const Usuarios = sequelize.define('usuarios', {
-    id: {
-        type: Sequelize.INTEGER,
-        primaryKey: true
-    },
-    nombre: {
-        type: Sequelize.TEXT,
-        allowNull: false
-    },
-    apellido: {
-        type: Sequelize.TEXT,
-        allowNull: false
-    },
-    foto: {
-        type: Sequelize.TEXT
-    },
-    direccion: {
-        type: Sequelize.TEXT,
-        allowNull: false
-    },
-    telefono: {
-        type: Sequelize.TEXT,
-        allowNull: false
-    },
-    correo: {
-        type: Sequelize.TEXT,
-        allowNull: false
-    },
-    password: {
-        type: Sequelize.TEXT,
-        allowNull: false
+class Usuarios extends Model {
+    static init(sequelize, DataTypes) {
+        return super.init({
+            id: {
+                type: DataTypes.INTEGER,
+                primaryKey: true
+            },
+            nombre: {
+                type: DataTypes.TEXT,
+                allowNull: false
+            },
+            apellido: {
+                type: DataTypes.TEXT,
+                allowNull: false
+            },
+            foto: {
+                type: DataTypes.TEXT
+            },
+            direccion: {
+                type: DataTypes.TEXT,
+                allowNull: false
+            },
+            telefono: {
+                type: DataTypes.TEXT,
+                allowNull: false
+            },
+            correo: {
+                type: DataTypes.TEXT,
+                allowNull: false
+            },
+            password: {
+                type: DataTypes.TEXT,
+                allowNull: false
+            },
+            activo: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false
+            },
+            codigo_activacion: {
+                type: DataTypes.TEXT
+            }
+        }, {
+            sequelize,
+            modelName: 'Usuarios',
+            tableName: 'usuarios',
+            timestamps: false
+        });
+
     }
-}, {
-    timestamps: false
-});
+
+    static associate(models) {
+        this.belongsToMany(models.Roles, { through: models.UsuariosRoles, foreignKey: 'id_usuarios', as: 'Roles' })
+    }
+
+}
+
+
+
+
+
 
 module.exports = Usuarios;
+
 

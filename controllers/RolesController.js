@@ -1,12 +1,10 @@
-const Roles = require('../models/Roles');
 const HttpError = require('../models/Error');
 const { validationResult } = require('express-validator');
-const RolesPermisos = require('./../models/RolesPermisos')
-const sequelize = require('../database/database');
+const db = require('../database/asociaciones');
 
 exports.getTodosRoles = async (req, res, next) => {
     try {
-        const roles = await Roles.findAll();
+        const roles = await db.Roles.findAll();
         res.status(200).json({
             roles
         })
@@ -19,23 +17,23 @@ exports.getTodosRoles = async (req, res, next) => {
 
 exports.agregarRol = async (req, res, next) => {
     const errors = validationResult(req);
-    const t = await sequelize.transaction();
+    const t = await db.sequelize.transaction();
     try {
         if (!errors.isEmpty()) {
             console.log(errors);
             next(new HttpError('Datos invalidos', 422));
         }
         const { nombre, permisos } = req.body;
-        const nuevoRol = await Roles.create({
+        const nuevoRol = await db.Roles.create({
             nombre
         }, {
             fields: [
                 'nombre'
             ]
-        })
+        }) 
         if (permisos) {
             for (const permiso of permisos) {
-                let rolesPermisos = await RolesPermisos.create({
+                let rolesPermisos = await db.RolesPermisos.create({
                     id_permisos: permiso,
                     id_roles: nuevoRol.id
                 }, {
@@ -67,7 +65,7 @@ exports.getRolPorId = async (req, res, next) => {
     const id = await req.params.id;
     let rol;
     try {
-        rol = await Roles.findOne({
+        rol = await db.Roles.findOne({
             where: {
                 id
             }
@@ -87,14 +85,14 @@ exports.actualizarRol = async (req, res, next) => {
     const { id } = await req.params;
     const { nombre, permisos } = await req.body;
     const errors = validationResult(req);
-    const t = await sequelize.transaction();
+    const t = await db.sequelize.transaction();
     let rol
     try {
         if (!errors.isEmpty()) {
             console.log(errors);
             next(new HttpError('Datos invalidos', 422));
         }
-        rol = await Roles.findOne({
+        rol = await db.Roles.findOne({
             attributes: ['nombre', 'id'],
             where: {
                 id
@@ -109,14 +107,14 @@ exports.actualizarRol = async (req, res, next) => {
         return next(error);
     }
     try {
-        await Roles.update({
+        await db.Roles.update({
             nombre
         },
             {
                 where: { id },
                 transaction: t
             })
-        await RolesPermisos.destroy({
+        await db.RolesPermisos.destroy({
             where: {
                 id_roles: rol.id
             }
@@ -124,7 +122,7 @@ exports.actualizarRol = async (req, res, next) => {
         });
         if (permisos) {
             for (const permiso of permisos) {
-                let rolesPermisos = await RolesPermisos.create({
+                let rolesPermisos = await db.RolesPermisos.create({
                     id_permisos: permiso,
                     id_roles: rol.id
                 }, {
@@ -152,11 +150,11 @@ exports.actualizarRol = async (req, res, next) => {
 }
 
 exports.eliminarRol = async (req, res, next) => {
-    const t = await sequelize.transaction();
+    const t = await db.sequelize.transaction();
     try {
         const { id } = await req.params;
 
-        await RolesPermisos.destroy({
+        await db.RolesPermisos.destroy({
             where: {
                 id_roles: id
             }

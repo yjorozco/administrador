@@ -1,17 +1,14 @@
-const Usuarios = require('../models/Usuarios');
 const HttpError = require('../models/Error');
 const { validationResult } = require('express-validator');
-const UsuariosRoles = require('./../models/UsuariosRoles')
-const sequelize = require('../database/database');
+const db = require('../database/asociaciones')
 const bcrypt = require('bcrypt');
-const Roles = require('../models/Roles');
-const nodemailer = require("nodemailer");
 const cryptoRandomString = require('crypto-random-string');
+const enviarCorreo = require('../helpers/email');
 
 
 exports.registrarUsuario = async (req, res, next) => {
     const errors = validationResult(req);
-    const t = await sequelize.transaction();
+    const t = await db.sequelize.transaction();
     try {
         if (!errors.isEmpty()) {
             console.log(errors);
@@ -26,16 +23,19 @@ exports.registrarUsuario = async (req, res, next) => {
             correo,
             password
         } = req.body;
-        
+
         const passwordHash = await bcrypt.hash(password, 10);
-        const usuario = await Usuarios.create({
+        const codigo_activacion = cryptoRandomString({ length: 10 });
+        const usuario = await db.Usuarios.create({
             nombre,
             apellido,
             foto,
             direccion,
             telefono,
             correo,
-            'password':passwordHash
+            activo: false,
+            codigo_activacion,
+            'password': passwordHash
         }, {
             fields: [
                 'nombre',
@@ -44,15 +44,17 @@ exports.registrarUsuario = async (req, res, next) => {
                 'direccion',
                 'telefono',
                 'correo',
+                'activo',
+                'codigo_activacion',
                 'password'
             ], transaction: t
         })
-        const roles = await Roles.findOne({
+        const roles = await db.Roles.findOne({
             where: {
-                nombre:'Usuario'
+                nombre: 'Usuario'
             }
         })
-        const usuariosRoles = await UsuariosRoles.create({
+        const usuariosRoles = await db.UsuariosRoles.create({
             id_usuarios: usuario.id,
             id_roles: roles.id
         }, {
@@ -62,8 +64,12 @@ exports.registrarUsuario = async (req, res, next) => {
             ], transaction: t
         })
 
+        const asunto = "Activación de usuario";
+        const cuerpo = "Su codigo de activación es " + codigo_activacion;
+        await enviarCorreo(usuario.correo, asunto, cuerpo);
+
         await t.commit();
-        res.status(201).json({ mensaje: 'usuario creado', usuario });
+        res.status(201).json({ mensaje: 'usuario creado, verifique por correo su codigo de activación', usuario });
     } catch (e) {
         console.log(e);
         try {
@@ -79,59 +85,45 @@ exports.registrarUsuario = async (req, res, next) => {
 }
 
 
-exports.recuperarPassword =  async (req, res, next) => {
+exports.recuperarPassword = async (req, res, next) => {
     const errors = validationResult(req);
-    const t = await sequelize.transaction();
+    const t = await db.sequelize.transaction();
     try {
         if (!errors.isEmpty()) {
             console.log(errors);
             next(new HttpError('Datos invalidos', 422));
         }
 
-        const nuevoPassword = cryptoRandomString({length: 10});
+        const nuevoPassword = cryptoRandomString({ length: 10 });
         const {
             correo
         } = req.body;
-        const usuario = await Usuarios.findOne({
+        const usuario = await db.Usuarios.findOne({
             where: {
                 correo
             }
         })
-        if(!usuario){
+        if (!usuario) {
             const error = new HttpError('usuaro no existe', 404);
             return next(error);
         }
         const nuevoPasswordHash = await bcrypt.hash(nuevoPassword, 10);
-        await Usuarios.update({password:nuevoPasswordHash},
+        await db.Usuarios.update({ password: nuevoPasswordHash },
             {
-                where: { id:usuario.id },
+                where: { id: usuario.id },
                 transaction: t
             });
-        
-        process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-        
-        let transporter = nodemailer.createTransport({
-          service: 'gmail',
-          auth: {
-            user: 'yamiloro@gmail.com', 
-            pass: 'Sistemas10009973.', 
-          },
-        });
-      
-        let info = await transporter.sendMail({
-          from: '"yamiloro@gmail.com',
-          to: usuario.correo, 
-          subject: "Recuperación de Contraseña", 
-          text: "Su nueva contraseña es " + nuevoPassword
-        });
-
+        const asunto = "Recuperación de Contraseña";
+        const cuerpo = "Su nueva contraseña es " + nuevoPassword;
+        await enviarCorreo(usuario.correo, asunto, cuerpo);
         await t.commit();
+
         return res.status(200).json({
             message: "Password cambiado",
-            
+
         })
-        
-    }catch (e) {
+
+    } catch (e) {
         console.log(e);
         try {
             await t.rollback();
@@ -139,6 +131,54 @@ exports.recuperarPassword =  async (req, res, next) => {
             console.log(e);
         }
         const error = new HttpError('No se puede actualizar el password', 422);
+        return next(error)
+    }
+}
+
+exports.activarUsuario = async (req, res, next) => {
+    const errors = validationResult(req);
+    const t = await db.sequelize.transaction();
+    const usuario = await db.Usuarios.findOne({
+        where: {
+            correo
+        }
+    })
+    try {
+        if (!errors.isEmpty()) {
+            console.log(errors);
+            next(new HttpError('Datos invalidos', 422));
+        }
+        const { codigo_activacion } = req.body;
+        const usuario = await db.Usuarios.findOne({
+            where: {
+                codigo_activacion
+            }
+        })
+
+        if (usuario && usuario.codigo_activacion != '') {
+               await db.Usuarios.update({ activo: true, codigo_activacion: '' },
+                {
+                    where: { codigo_activacion, activo: false },
+                    transaction: t
+                });                
+        } else {
+            throw Error('Error al activar el usuario');
+        }
+        const asunto = "Activación de usuario";
+        const cuerpo = "Su usuario ha sido activado";
+        await enviarCorreo(usuario.correo, asunto, cuerpo);
+        await t.commit();
+        return res.status(200).json({
+            message: "Usuario activado"
+        })
+    } catch (e) {
+        console.log(e);
+        try {
+            await t.rollback();
+        } catch (e) {
+            console.log(e);
+        }
+        const error = new HttpError('No se pudo realizar el proceso de activación', 422);
         return next(error)
     }
 }

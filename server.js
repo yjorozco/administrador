@@ -44,7 +44,7 @@ const dir = path.join(__dirname, 'uploads');
 app.use('/uploads',  passport.authenticate('jwt', {session: false}), express.static(dir));
 app.use('/api/roles', passport.authenticate('jwt', {session: false}), rolesRouter);
 app.use('/api/permisos', passport.authenticate('jwt', {session: false}), permisosRouter);
-app.use('/api/usuarios', passport.authenticate('jwt', {session: false}), usuariosRouter);
+app.use('/api/usuarios', usuariosRouter);
 app.use('/api/front', usuariosFront);
 app.use('/api/auth', auth);
 

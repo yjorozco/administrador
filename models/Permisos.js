@@ -1,18 +1,28 @@
-const Sequelize = require('sequelize');
-const  sequelize  = require('../database/database');
+const { Model } = require('sequelize');
+class Permisos extends Model {
+    static init(sequelize, DataTypes) {
+        return super.init({
+            id: {
+                type: DataTypes.INTEGER,
+                primaryKey: true
+            },
+            nombre: {
+                type: DataTypes.TEXT,
+                allowNull: false
+            }
+        }, {
+            sequelize,
+            modelName: 'Permisos',
+            tableName: 'permisos',
+            timestamps: false
+        });
 
-const Permisos = sequelize.define('permisos', {
-    id: {
-        type: Sequelize.INTEGER,
-        primaryKey: true
-    },
-    nombre: {
-        type: Sequelize.TEXT,
-        allowNull: false
     }
-}, {
-    timestamps: false
-});
+
+    static associate(models) {
+        this.belongsToMany(models.Roles, { through:models.RolesPermisos, foreignKey: 'id_permisos', as:'Roles' })  
+    }
+}
 
 
 module.exports = Permisos;

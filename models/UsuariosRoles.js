@@ -1,32 +1,45 @@
-const Sequelize = require('sequelize');
-const  sequelize = require('../database/database');
+const { Model } = require('sequelize');
 const Roles = require('./Roles');
 const Usuarios = require('./Usuarios');
+class UsuariosRoles extends Model {
 
-const UsuariosRoles = sequelize.define('usuarios_roles', {
-    id: {
-        type: Sequelize.INTEGER,
-        primaryKey: true
-    },
-    id_roles: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: Roles , 
-          key: 'id'
-        }
-    },
-    id_usuarios:  {
-        type: Sequelize.INTEGER,
-        references: {
-          model: Usuarios, 
-          key: 'id'
-        }
+    static init(sequelize, DataTypes) {
+        return super.init({
+            id: {
+                type: DataTypes.INTEGER,
+                primaryKey: true
+            },
+            id_roles: {
+                type: DataTypes.INTEGER,
+                references: {
+                    model: Roles,
+                    key: 'id'
+                }
+            },
+            id_usuarios: {
+                type: DataTypes.INTEGER,
+                references: {
+                    model: Usuarios,
+                    key: 'id'
+                }
+            }
+        }, {
+            sequelize,
+            modelName: 'UsuariosRoles',
+            tableName: 'usuarios_roles',
+            timestamps: false
+        });
+
     }
-}, {
-    timestamps: false
-});
 
-Usuarios.belongsToMany(Roles, {  through: UsuariosRoles,foreignKey: 'id_usuarios' });
-Roles.belongsToMany(Usuarios, { through: UsuariosRoles, foreignKey: 'id_roles' });
+    static associate(models) {
+
+        this.belongsTo(models.Usuarios, { foreignKey: 'id_roles'  });
+        this.belongsTo(models.Roles, { foreignKey: 'id_usuarios'  }); 
+    }
+}
+
+
+
 
 module.exports = UsuariosRoles;

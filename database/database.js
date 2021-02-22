@@ -8,8 +8,8 @@ const sequelize = new Sequelize(
         host: "localhost",
         dialect:'postgres',
         pool: {
-            max:5,
-            min:0,
+            max:100,
+            min:2,
             require: 10000,
             idle: 10000
         },

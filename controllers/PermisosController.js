@@ -1,11 +1,10 @@
-const Permisos = require('../models/Permisos');
 const HttpError = require('../models/Error');
 const { validationResult } = require('express-validator');
-
+const db = require('../database/asociaciones');
 
 exports.getTodosPermisos = async (req, res, next) => {
     try {
-        const permisos = await Permisos.findAll();
+        const permisos = await db.Permisos.findAll();
         res.status(200).json({
             permisos
         })
@@ -24,7 +23,7 @@ exports.agregarPermiso = async (req, res, next) => {
             next(new HttpError('Datos invalidos', 422));
         }
         const { nombre } = req.body;
-        const permiso = await Permisos.create({
+        const permiso = await db.Permisos.create({
             nombre
         }, {
             fields: [
@@ -45,7 +44,7 @@ exports.getPermisoPorId = async (req, res, next) => {
     const id = await req.params.id;
     let permiso;
     try {
-        permiso = await Permisos.findOne({
+        permiso = await db.Permisos.findOne({
             where: {
                 id
             }
@@ -71,13 +70,12 @@ exports.actualizarPermiso = async (req, res, next) => {
             console.log(errors);
             next(new HttpError('Datos invalidos', 422));
         }
-        permiso = await Permisos.findOne({
+        permiso = await db.Permisos.findOne({
             attributes: ['nombre', 'id'],
             where: {
                 id
             }
         })
-        console.log(permiso);
     } catch (e) {
         const error = new HttpError('hay un error, no se puede encontrar el permiso', 500);
         return next(error);
@@ -87,7 +85,7 @@ exports.actualizarPermiso = async (req, res, next) => {
         return next(error);
     }
     try {
-        cantidad = await Permisos.update({
+        cantidad = await db.Permisos.update({
             nombre
         },
             {
@@ -107,7 +105,7 @@ exports.actualizarPermiso = async (req, res, next) => {
 exports.eliminarPermiso = async (req, res, next) => {
     try {
         const { id } = await req.params;
-        const cantidadEliminada = await Permisos.destroy({
+        const cantidadEliminada = await db.Permisos.destroy({
             where: {
                 id
             }

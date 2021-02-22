@@ -1,14 +1,12 @@
-const Usuarios = require('../models/Usuarios');
 const HttpError = require('../models/Error');
 const { validationResult } = require('express-validator');
-const UsuariosRoles = require('./../models/UsuariosRoles')
-const sequelize = require('../database/database');
 const bcrypt = require('bcrypt');
 const fs = require('fs');
+const db = require('../database/asociaciones');
 
 exports.getTodosUsuarios = async (req, res, next) => {
     try {
-        const usuarios = await Usuarios.findAll();
+        const usuarios = await db.Usuarios.findAll({ attributes: { exclude: ['password'] }, include: [{ model: db.Roles, as: 'Roles' }] });
         res.status(200).json({
             usuarios
         })
@@ -21,7 +19,7 @@ exports.getTodosUsuarios = async (req, res, next) => {
 
 exports.agregarUsuario = async (req, res, next) => {
     const errors = validationResult(req);
-    const t = await sequelize.transaction();
+    const t = await db.sequelize.transaction();
     try {
         if (!errors.isEmpty()) {
             console.log(errors);
@@ -35,18 +33,21 @@ exports.agregarUsuario = async (req, res, next) => {
             telefono,
             correo,
             password,
-            roles } = req.body;
+            roles } = await req.body;
 
         const passwordHash = await bcrypt.hash(password, 10);
-        const usuario = await Usuarios.create({
+        const usuario = await db.Usuarios.create({
             nombre,
             apellido,
             foto,
             direccion,
             telefono,
             correo,
-            'password': passwordHash
+            activo: true,
+            'password': passwordHash,
+         
         }, {
+            include: [{ model: db.Roles, as: 'Roles' }],
             fields: [
                 'nombre',
                 'apellido',
@@ -54,26 +55,27 @@ exports.agregarUsuario = async (req, res, next) => {
                 'direccion',
                 'telefono',
                 'correo',
+                'activo',
                 'password'
             ], transaction: t
         })
+    
+        await usuario.setRoles(roles, { fields: ["id_usuarios", "id_roles"], transaction: t });
+        /* if (roles) {
+             for (const rol of roles) {
+                 let rolOne = await db.Roles.findOne({
+                     where: {
+                         id: rol
+                     }
+                 })
+                
+             }
+         }*/
 
-        if (roles) {
-            for (const rol of roles) {
-                let usuariosRoles = await UsuariosRoles.create({
-                    id_usuarios: usuario.id,
-                    id_roles: rol
-                }, {
-                    fields: [
-                        'id_usuarios',
-                        'id_roles'
-                    ], transaction: t
-                })
-            }
-        }
 
         await t.commit();
-        res.status(201).json({ mensaje: 'usuario creado', usuario });
+        // console.log(usuario.getRoles());
+        res.status(201).json({ mensaje: 'usuario creado' });
     } catch (e) {
         console.log(e);
         try {
@@ -92,12 +94,15 @@ exports.getUsuarioPorId = async (req, res, next) => {
     const id = await req.params.id;
     let usuario;
     try {
-        usuario = await Usuarios.findOne({
+        usuario = await db.Usuarios.findOne({
+            attributes: { exclude: ['password'] },
+            include: [{ model: db.Roles, as: 'Roles' }],
             where: {
                 id
             }
         })
     } catch (err) {
+        console.log(err);
         const error = new HttpError('hay un error, no se puede encontrar el usuario', 500);
         return next(error);
     }
@@ -111,8 +116,8 @@ exports.getUsuarioPorId = async (req, res, next) => {
 exports.actualizarUsuario = async (req, res, next) => {
     const { id } = await req.params;
     const errors = validationResult(req);
-    const t = await sequelize.transaction();
-    
+    const t = await db.sequelize.transaction();
+
     const {
         nombre,
         apellido,
@@ -130,7 +135,7 @@ exports.actualizarUsuario = async (req, res, next) => {
             console.log(errors);
             next(new HttpError('Datos invalidos', 422));
         }
-        usuario = await Usuarios.findOne({
+        usuario = await db.Usuarios.findOne({
             attributes: [
                 'id',
                 'nombre',
@@ -168,12 +173,12 @@ exports.actualizarUsuario = async (req, res, next) => {
         }
 
         if (password === '') delete cuerpo['password'];
-        await Usuarios.update(cuerpo,
+        await db.Usuarios.update(cuerpo,
             {
                 where: { id },
                 transaction: t
             });
-        await UsuariosRoles.destroy({
+        await db.UsuariosRoles.destroy({
             where: {
                 id_usuarios: usuario.id
             }
@@ -181,15 +186,12 @@ exports.actualizarUsuario = async (req, res, next) => {
         });
         if (roles) {
             for (const rol of roles) {
-                let usuariosRoles = await UsuariosRoles.create({
-                    id_usuarios: usuario.id,
-                    id_roles: rol
-                }, {
-                    fields: [
-                        'id_usuarios',
-                        'id_roles'
-                    ], transaction: t
+                let rolOne = await db.Roles.findOne({
+                    where: {
+                        id: rol
+                    }
                 })
+                await usuario.addRoles(rolOne, { fields: ["id_usuarios", "id_roles"], transaction: t });
             }
         }
 
@@ -212,11 +214,11 @@ exports.actualizarUsuario = async (req, res, next) => {
 }
 
 exports.eliminarUsuario = async (req, res, next) => {
-    const t = await sequelize.transaction();
+    const t = await db.sequelize.transaction();
     try {
         const { id } = await req.params;
-        if(!id) new Error("el id no debe estar nulo");
-        const usuario = Usuarios.findOne({
+        if (!id) new Error("el id no debe estar nulo");
+        const usuario = await db.Usuarios.findOne({
             attributes: [
                 'id',
                 'nombre',
@@ -225,16 +227,14 @@ exports.eliminarUsuario = async (req, res, next) => {
             ],
             where: {
                 id
-            }
+            },
+            include: [{ model: db.Roles, as: 'Roles' }],
         });
-        const fotoVieja = usuario.foto;
-        await UsuariosRoles.destroy({
-            where: {
-                id_usuarios: id
-            }
-            , transaction: t
-        });
-        await Usuarios.destroy({
+
+        console.log(usuario);
+        const fotoVieja = await usuario.foto;
+        await usuario.removeRoles(usuario.Roles, { transaction: t });
+        await db.Usuarios.destroy({
             where: {
                 id
             }
@@ -261,7 +261,7 @@ exports.eliminarUsuario = async (req, res, next) => {
 
 exports.cambiarPassword = async (req, res, next) => {
     const errors = validationResult(req);
-    const t = await sequelize.transaction();
+    const t = await db.sequelize.transaction();
     try {
         if (!errors.isEmpty()) {
             console.log(errors);
@@ -272,7 +272,7 @@ exports.cambiarPassword = async (req, res, next) => {
             correo,
             password
         } = req.body;
-        const usuario = await Usuarios.findOne({
+        const usuario = await db.Usuarios.findOne({
             where: {
                 correo
             }
@@ -282,7 +282,7 @@ exports.cambiarPassword = async (req, res, next) => {
             return next(error);
         }
         const nuevoPasswordHash = await bcrypt.hash(password, 10);
-        await Usuarios.update({ password: nuevoPasswordHash },
+        await db.Usuarios.update({ password: nuevoPasswordHash },
             {
                 where: { id: usuario.id },
                 transaction: t
