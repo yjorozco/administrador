@@ -36,6 +36,7 @@ exports.agregarUsuario = async (req, res, next) => {
             roles } = await req.body;
 
         const passwordHash = await bcrypt.hash(password, 10);
+        if(foto) foto='avatar.png';
         const usuario = await db.Usuarios.create({
             nombre,
             apellido,
@@ -45,7 +46,7 @@ exports.agregarUsuario = async (req, res, next) => {
             correo,
             activo: true,
             'password': passwordHash,
-         
+
         }, {
             include: [{ model: db.Roles, as: 'Roles' }],
             fields: [
@@ -59,22 +60,9 @@ exports.agregarUsuario = async (req, res, next) => {
                 'password'
             ], transaction: t
         })
-    
-        await usuario.setRoles(roles, { fields: ["id_usuarios", "id_roles"], transaction: t });
-        /* if (roles) {
-             for (const rol of roles) {
-                 let rolOne = await db.Roles.findOne({
-                     where: {
-                         id: rol
-                     }
-                 })
-                
-             }
-         }*/
-
-
+        if (roles)
+            await usuario.setRoles(roles, { fields: ["id_usuarios", "id_roles"], transaction: t });
         await t.commit();
-        // console.log(usuario.getRoles());
         res.status(201).json({ mensaje: 'usuario creado' });
     } catch (e) {
         console.log(e);
@@ -178,25 +166,12 @@ exports.actualizarUsuario = async (req, res, next) => {
                 where: { id },
                 transaction: t
             });
-        await db.UsuariosRoles.destroy({
-            where: {
-                id_usuarios: usuario.id
-            }
-            , transaction: t
-        });
-        if (roles) {
-            for (const rol of roles) {
-                let rolOne = await db.Roles.findOne({
-                    where: {
-                        id: rol
-                    }
-                })
-                await usuario.addRoles(rolOne, { fields: ["id_usuarios", "id_roles"], transaction: t });
-            }
-        }
-
+        const usuario = await db.Usuarios.findOne({ where: { id: id }, include: [{ model: db.Roles, as: 'Roles' }], transaction: t })
+        await usuario.removeRoles(usuario.Roles, { transaction: t });
+        if (roles)
+            await usuario.addRoles(roles, { fields: ["id_usuarios", "id_roles"], transaction: t });
         await t.commit();
-        if (foto && foto != fotoVieja) fs.unlinkSync('../upload/' + fotoVieja);
+        if (foto && foto != fotoVieja && foto!='avatar.png') fs.unlinkSync('../upload/' + fotoVieja);
         return res.status(200).json({
             message: "Usuario actualizado",
 
@@ -231,7 +206,7 @@ exports.eliminarUsuario = async (req, res, next) => {
             include: [{ model: db.Roles, as: 'Roles' }],
         });
 
-        console.log(usuario);
+
         const fotoVieja = await usuario.foto;
         await usuario.removeRoles(usuario.Roles, { transaction: t });
         await db.Usuarios.destroy({
@@ -241,10 +216,9 @@ exports.eliminarUsuario = async (req, res, next) => {
             , transaction: t
         })
         await t.commit();
-        if (fotoVieja) fs.unlinkSync('../upload/' + fotoVieja);
+        if (fotoVieja && fotoVieja != 'avatar.png') fs.unlinkSync('../upload/' + fotoVieja);
         res.status(201).json({
-            message: 'Usuario eliminado de forma satisfactoria',
-            // count: cantidadEliminada
+            message: 'Usuario eliminado de forma satisfactoria'
         })
     } catch (e) {
         console.log(e);
@@ -287,14 +261,11 @@ exports.cambiarPassword = async (req, res, next) => {
                 where: { id: usuario.id },
                 transaction: t
             });
-
-
         await t.commit();
         return res.status(200).json({
             message: "Password cambiado",
 
         })
-
     } catch (e) {
         console.log(e);
         try {

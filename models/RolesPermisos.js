@@ -32,8 +32,8 @@ class RolesPermisos extends Model {
     }
 
     static associate(models) {
-        this.belongsToMany(models.Roles, { through: RolesPermisos, foreignKey: 'id_roles' });
-        this.belongsToMany(models.Permisos, { through: RolesPermisos, foreignKey: 'id_permisos' })
+        this.belongsTo(models.Roles, { foreignKey: 'id_roles' });
+        this.belongsTo(models.Permisos, { foreignKey: 'id_permisos' })
     }
 }
 

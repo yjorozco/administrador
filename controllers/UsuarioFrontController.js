@@ -54,16 +54,7 @@ exports.registrarUsuario = async (req, res, next) => {
                 nombre: 'Usuario'
             }
         })
-        const usuariosRoles = await db.UsuariosRoles.create({
-            id_usuarios: usuario.id,
-            id_roles: roles.id
-        }, {
-            fields: [
-                'id_usuarios',
-                'id_roles'
-            ], transaction: t
-        })
-
+        await usuario.setRoles(roles, { fields: ["id_usuarios", "id_roles"], transaction: t });
         const asunto = "Activación de usuario";
         const cuerpo = "Su codigo de activación es " + codigo_activacion;
         await enviarCorreo(usuario.correo, asunto, cuerpo);
@@ -156,11 +147,11 @@ exports.activarUsuario = async (req, res, next) => {
         })
 
         if (usuario && usuario.codigo_activacion != '') {
-               await db.Usuarios.update({ activo: true, codigo_activacion: '' },
+            await db.Usuarios.update({ activo: true, codigo_activacion: '' },
                 {
                     where: { codigo_activacion, activo: false },
                     transaction: t
-                });                
+                });
         } else {
             throw Error('Error al activar el usuario');
         }

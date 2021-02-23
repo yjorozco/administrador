@@ -29,24 +29,13 @@ exports.agregarRol = async (req, res, next) => {
         }, {
             fields: [
                 'nombre'
-            ]
-        }) 
-        if (permisos) {
-            for (const permiso of permisos) {
-                let rolesPermisos = await db.RolesPermisos.create({
-                    id_permisos: permiso,
-                    id_roles: nuevoRol.id
-                }, {
-                    fields: [
-                        'id_permisos',
-                        'id_roles'
-                    ], transaction: t
-                })
-            }
-        }
-
+            ],
+            transaction: t
+        });
+        if (permisos)
+            await nuevoRol.setPermisos(permisos, { fields: ["id_permisos", "id_roles"], transaction: t });
         await t.commit();
-        res.status(201).json({ mensaje: 'rol creado', rol: nuevoRol });
+        res.status(201).json({ mensaje: 'rol creado' });
     } catch (e) {
         console.log(e);
         try {
@@ -68,7 +57,8 @@ exports.getRolPorId = async (req, res, next) => {
         rol = await db.Roles.findOne({
             where: {
                 id
-            }
+            },
+            include: [{ model: db.Permisos, as: 'Permisos' }]
         })
     } catch (err) {
         const error = new HttpError('hay un error, no se puede encontrar el rol', 500);
@@ -114,25 +104,11 @@ exports.actualizarRol = async (req, res, next) => {
                 where: { id },
                 transaction: t
             })
-        await db.RolesPermisos.destroy({
-            where: {
-                id_roles: rol.id
-            }
-            , transaction: t
-        });
-        if (permisos) {
-            for (const permiso of permisos) {
-                let rolesPermisos = await db.RolesPermisos.create({
-                    id_permisos: permiso,
-                    id_roles: rol.id
-                }, {
-                    fields: [
-                        'id_permisos',
-                        'id_roles'
-                    ], transaction: t
-                })
-            }
-        }
+
+        const roles = await db.Roles.findOne({ where: { id: id }, include: [{ model: db.Permisos, as: 'Permisos' }], transaction: t })
+        await roles.removePermisos(roles.Permisos, { transaction: t });
+        if (permisos)
+            await roles.addPermisos(permisos, { fields: ["id_permisos", "id_roles"], transaction: t })
         await t.commit();
         return res.status(200).json({
             message: "Rol actualizado"
@@ -153,30 +129,35 @@ exports.eliminarRol = async (req, res, next) => {
     const t = await db.sequelize.transaction();
     try {
         const { id } = await req.params;
-
-        await db.RolesPermisos.destroy({
+        if (!id) new Error("el id no debe estar nulo");
+        const roles = await db.Roles.findOne({
+            attributes: [
+                'id',
+                'nombre'
+            ],
             where: {
-                id_roles: id
-            }
-            , transaction: t
+                id
+            },
+            include: [{ model: db.Permisos, as: 'Permisos' }],
         });
+        await roles.removePermisos(roles.Permisos, { transaction: t });
         await Roles.destroy({
             where: {
                 id
             }, transaction: t
-        })
+        })      
         await t.commit();
         res.json({
             message: 'Rol eliminado de forma satisfactoria',
         })
-    } catch (err) {      
-        console.log(err); 
+    } catch (err) {
+        console.log(err);
         try {
             await t.rollback();
         } catch (e) {
             console.log(e);
         }
-      
+
         const error = new HttpError('el rol no se puede eliminar', 500);
         return next(error);
     }

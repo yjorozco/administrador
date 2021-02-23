@@ -108,7 +108,7 @@ exports.eliminarPermiso = async (req, res, next) => {
         const cantidadEliminada = await db.Permisos.destroy({
             where: {
                 id
-            }
+            }          
         })
         res.json({
             message: 'Permiso eliminado de forma satisfactoria',
