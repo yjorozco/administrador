@@ -60,7 +60,9 @@ app.use('/api/auth', auth);
     throw error;
 })*/
 
-
+app.use((req, res, next)=>{
+    console.log(req.url);
+})
 
 /*app.use((error, req, res, next) => {
       if(req.file){
