@@ -29,7 +29,6 @@ exports.registrarUsuario = async (req, res, next) => {
         const usuario = await db.Usuarios.create({
             nombre,
             apellido,
-            foto,
             direccion,
             telefono,
             correo,
@@ -40,7 +39,6 @@ exports.registrarUsuario = async (req, res, next) => {
             fields: [
                 'nombre',
                 'apellido',
-                'foto',
                 'direccion',
                 'telefono',
                 'correo',

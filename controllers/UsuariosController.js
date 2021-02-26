@@ -278,6 +278,89 @@ exports.cambiarPassword = async (req, res, next) => {
     }
 }
 
+exports.actualizarPerfil = async (req, res, next) => {
+    const { id } = await req.params;
+    const errors = validationResult(req);
+    const t = await db.sequelize.transaction();
+
+    const {
+        nombre,
+        apellido,
+        foto,
+        direccion,
+        telefono,
+        correo,
+        password
+     } = req.body;
+    let usuario;
+    let fotoVieja;
+    const passwordHash = await bcrypt.hash(password, 10);
+    try {
+        if (!errors.isEmpty()) {
+            console.log(errors);
+            next(new HttpError('Datos invalidos', 422));
+        }
+        usuario = await db.Usuarios.findOne({
+            attributes: [
+                'id',
+                'nombre',
+                'apellido',
+                'foto',
+                'direccion',
+                'telefono',
+                'correo',
+                'password'
+            ],
+            where: {
+                id
+            }
+        })
+        fotoVieja = usuario.foto;
+
+    } catch (e) {
+        const error = new HttpError('hay un error, no se puede encontrar el usuario', 500);
+        return next(error);
+    }
+    if (!usuario) {
+        const error = next(new HttpError('no se puede encontrar el usuario con el id suministrado', 404));
+        return next(error);
+    }
+    try {
+
+        let cuerpo = {
+            nombre,
+            apellido,
+            foto,
+            direccion,
+            telefono,
+            correo,
+            'password': passwordHash
+        }
+
+        if (password === '') delete cuerpo['password'];
+        await db.Usuarios.update(cuerpo,
+            {
+                where: { id },
+                transaction: t
+            });
+        await t.commit();
+        if (foto && foto != fotoVieja && foto!='avatar.png') fs.unlinkSync('../upload/' + fotoVieja);
+        return res.status(200).json({
+            message: "Usuario actualizado",
+
+        })
+    } catch (e) {
+        try {
+            await t.rollback();
+        } catch (e) {
+            console.log(e);
+        }
+        console.log(e);
+        const error = new HttpError('hay un error, no se puede encontrar el usuario', 500);
+        return next(error);
+    }
+}
+
 exports.salvarImagen = async (req, res, next) => {
     try {
 
