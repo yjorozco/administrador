@@ -12,7 +12,7 @@ exports.getTodosUsuarios = async (req, res, next) => {
         })
     } catch (e) {
         console.log(e);
-        const error = new HttpError('Ocurrio un error al encontrar los usuarios', 422);
+        const error = new HttpError('Ocurrio un error al encontrar los usuarios', 500);
         return next(error);
     }
 }
@@ -71,7 +71,7 @@ exports.agregarUsuario = async (req, res, next) => {
         } catch (e) {
             console.log(e);
         }
-        const error = new HttpError('No se puede crear el usuario', 422);
+        const error = new HttpError('No se puede crear el usuario', 500);
         return next(error)
 
     }

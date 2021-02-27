@@ -10,7 +10,7 @@ exports.getTodosPermisos = async (req, res, next) => {
         })
     } catch (e) {
         console.log(e);
-        const error = new HttpError('Ocurrio un error al encontrar los permisos', 422);
+        const error = new HttpError('Ocurrio un error al encontrar los permisos', 500);
         return next(error)
     }
 }
@@ -33,7 +33,7 @@ exports.agregarPermiso = async (req, res, next) => {
         res.status(200).json({ mensaje: 'permiso creado' });
     } catch (e) {
         console.log(e);
-        const error = new HttpError('No se pueden crear los permiso', 404);
+        const error = new HttpError('No se pueden crear los permiso', 500);
         return next(error)
 
     }

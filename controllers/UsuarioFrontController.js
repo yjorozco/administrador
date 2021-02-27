@@ -66,7 +66,7 @@ exports.registrarUsuario = async (req, res, next) => {
         } catch (e) {
             console.log(e);
         }
-        const error = new HttpError('No se puede crear el usuario', 422);
+        const error = new HttpError('No se puede crear el usuario', 500);
         return next(error)
 
     }
@@ -93,7 +93,7 @@ exports.recuperarPassword = async (req, res, next) => {
             }
         })
         if (!usuario) {
-            const error = new HttpError('usuaro no existe', 404);
+            const error = new HttpError('usuario no existe', 404);
             return next(error);
         }
         const nuevoPasswordHash = await bcrypt.hash(nuevoPassword, 10);
@@ -119,7 +119,7 @@ exports.recuperarPassword = async (req, res, next) => {
         } catch (e) {
             console.log(e);
         }
-        const error = new HttpError('No se puede actualizar el password', 422);
+        const error = new HttpError('No se puede actualizar el password', 500);
         return next(error)
     }
 }

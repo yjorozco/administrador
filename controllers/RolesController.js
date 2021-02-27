@@ -10,7 +10,7 @@ exports.getTodosRoles = async (req, res, next) => {
         })
     } catch (e) {
         console.log(e);
-        const error = new HttpError('Ocurrio un error al encontrar los roles', 422);
+        const error = new HttpError('Ocurrio un error al encontrar los roles', 500);
         return next(error)
     }
 }
@@ -44,7 +44,7 @@ exports.agregarRol = async (req, res, next) => {
         } catch (e) {
             console.log(e);
         }
-        const error = new HttpError('No se puede crear el rol', 422);
+        const error = new HttpError('No se puede crear el rol', 500);
         return next(error)
 
     }
