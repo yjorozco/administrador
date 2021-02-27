@@ -9,7 +9,8 @@ class Roles extends Model {
             },
             nombre: {
                 type: DataTypes.TEXT,
-                allowNull: false
+                allowNull: false,
+                unique: true
             }
         }, {
             sequelize,

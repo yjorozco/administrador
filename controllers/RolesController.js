@@ -24,6 +24,7 @@ exports.agregarRol = async (req, res, next) => {
             next(new HttpError('Datos invalidos', 422));
         }
         const { nombre, permisos } = req.body;
+        console.log(permisos);
         const nuevoRol = await db.Roles.create({
             nombre
         }, {
@@ -109,6 +110,7 @@ exports.actualizarRol = async (req, res, next) => {
         await roles.removePermisos(roles.Permisos, { transaction: t });
         if (permisos)
             await roles.addPermisos(permisos, { fields: ["id_permisos", "id_roles"], transaction: t })
+        console.log('paso');
         await t.commit();
         return res.status(200).json({
             message: "Rol actualizado"
@@ -141,7 +143,7 @@ exports.eliminarRol = async (req, res, next) => {
             include: [{ model: db.Permisos, as: 'Permisos' }],
         });
         await roles.removePermisos(roles.Permisos, { transaction: t });
-        await Roles.destroy({
+        await db.Roles.destroy({
             where: {
                 id
             }, transaction: t

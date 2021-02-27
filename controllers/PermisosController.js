@@ -30,7 +30,7 @@ exports.agregarPermiso = async (req, res, next) => {
                 'nombre'
             ]
         })
-        res.status(200).json({ mensaje: 'permiso creado', permiso });
+        res.status(200).json({ mensaje: 'permiso creado' });
     } catch (e) {
         console.log(e);
         const error = new HttpError('No se pueden crear los permiso', 404);
@@ -92,8 +92,7 @@ exports.actualizarPermiso = async (req, res, next) => {
                 where: { id }
             })
         return res.status(200).json({
-            message: "Permiso actualizado",
-            permiso
+            message: "Permiso actualizado"
         })
     } catch (err) {
         const error = new HttpError('hay un error, no se puede actualizar el permiso', 500);
@@ -111,8 +110,7 @@ exports.eliminarPermiso = async (req, res, next) => {
             }          
         })
         res.json({
-            message: 'Permiso eliminado de forma satisfactoria',
-            count: cantidadEliminada
+            message: 'Permiso eliminado de forma satisfactoria'
         })
     } catch (e) {
         console.log(e);

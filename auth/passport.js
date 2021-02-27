@@ -41,7 +41,7 @@ passport.use(new JWTStrategy({
     secretOrKey: 'your_jwt_secret'
 },
     function (jwtPayload, cb) {
-        return Usuarios.findOne(jwtPayload.id)
+        return Usuarios.findOne({ where: {id:jwtPayload.user.id}})
             .then(user => {
                 return cb(null, user);
             })

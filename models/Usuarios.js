@@ -28,7 +28,8 @@ class Usuarios extends Model {
             },
             correo: {
                 type: DataTypes.TEXT,
-                allowNull: false
+                allowNull: false,
+                unique: true
             },
             password: {
                 type: DataTypes.TEXT,

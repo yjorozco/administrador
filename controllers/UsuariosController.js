@@ -13,7 +13,7 @@ exports.getTodosUsuarios = async (req, res, next) => {
     } catch (e) {
         console.log(e);
         const error = new HttpError('Ocurrio un error al encontrar los usuarios', 422);
-        return next(error)
+        return next(error);
     }
 }
 
@@ -25,7 +25,7 @@ exports.agregarUsuario = async (req, res, next) => {
             console.log(errors);
             next(new HttpError('Datos invalidos', 422));
         }
-        const {
+        let {
             nombre,
             apellido,
             foto,
