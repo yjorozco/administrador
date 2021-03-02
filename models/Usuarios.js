@@ -53,6 +53,7 @@ class Usuarios extends Model {
 
     static associate(models) {
         this.belongsToMany(models.Roles, { through: models.UsuariosRoles, foreignKey: 'id_usuarios', as: 'Roles' })
+        this.hasMany(models.Encuestas, { foreignKey: 'id_usuarios', sourceKey: 'id', as: 'Encuestas' })
     }
 
 }

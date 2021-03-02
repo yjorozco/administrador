@@ -10,6 +10,8 @@ const rolesRouter = require('./routes/roles-route');
 const permisosRouter = require('./routes/permisos-route');
 const usuariosRouter = require('./routes/usuarios-route');
 const usuariosFront = require('./routes/usuario-front-route');
+const geografiaRouter = require('./routes/geografia-route');
+const preguntasRouter = require('./routes/preguntas-route');
 const auth = require('./auth/auth');
 const path = require('path');
 
@@ -46,6 +48,8 @@ app.use('/api/roles', passport.authenticate('jwt', {session: false}), rolesRoute
 app.use('/api/permisos', passport.authenticate('jwt', {session: false}), permisosRouter);
 app.use('/api/usuarios', passport.authenticate('jwt', {session: false}), usuariosRouter);
 app.use('/api/front', passport.authenticate('jwt', {session: false}), usuariosFront);
+app.use('/api/geografia', passport.authenticate('jwt', {session: false}), geografiaRouter);
+app.use('/api/preguntas', passport.authenticate('jwt', {session: false}), preguntasRouter);
 app.use('/api/auth', auth);
 
 //app.use('/api/auth', autenticacion);

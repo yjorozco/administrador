@@ -29,9 +29,9 @@ class EncuestasDetalles extends Model {
     }
 
     static associate(models) {
-        this.belongsTo(models.Encuestas, { foreignKey:'id_encuestas', as:'Encuestas' });
-        this.belongsTo(models.Intensidades, { foreignKey:'id_intensidades', as:'Intensidades' });
-        this.belongsTo(models.Preguntas, { foreignKey:'id_preguntas', as:'Preguntas' });
+        this.belongsTo(models.Encuestas, { foreignKey:'id_encuestas', targetKey:'id', as:'Encuestas' });
+        this.belongsTo(models.Intensidades, { foreignKey:'id_intensidades',  targetKey:'id', as:'Intensidades' });
+        this.belongsTo(models.Preguntas, { foreignKey:'id_preguntas', targetKey:'id', as:'Preguntas' });
     }
 }
 

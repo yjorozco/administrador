@@ -11,7 +11,7 @@ class Preguntas extends Model {
                 allowNull: false,
                 unique: true
             },
-            id_intensidades:{
+            orden:{
                 type: DataTypes.INTEGER,
                 allowNull: false,
             }
@@ -26,14 +26,11 @@ class Preguntas extends Model {
     }
 
     static associate(models) {
-        this.belongsTo(models.Intensidades, {
-            foreignKey: "id_intensidades",
-            as: "Intensidades",
-        });
+        this.belongsToMany(models.Intensidades, { through: models.PreguntasIntensidades, foreignKey: 'id_preguntas', as: 'Intensidades' })
         this.hasMany(models.EncuestasDetalles, { as:'EncuestasDetalles' })  
 
     }
 }
 
 
-module.exports = Intensidades;
+module.exports = Preguntas;
