@@ -1,7 +1,7 @@
 const Sequelize= require('sequelize');
 
 const sequelize = new Sequelize(
-    'administrador',
+    'administrador1',
     'postgres',
     '123456',
     {
