@@ -15,7 +15,9 @@ exports.procesarEncuesta = async (req, res, next) => {
             next(new HttpError('Datos invalidos', 422));
         }
 
-        const suma = respuestas.reduce((a, b) => a + b, 0);
+        const suma = respuestas.reduce((a, b) => {
+            a + b
+        }, 0);
         const numero = respuestas.length;
         const intensidadValor = Math.round(suma/numero);
         const intensidad = db.Intensidades.findAll(
