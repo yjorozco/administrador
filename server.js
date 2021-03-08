@@ -7,6 +7,7 @@ require('./auth/passport');
 //const path = require('path');
 //const HttpError = require('./models/Error');
 const rolesRouter = require('./routes/roles-route');
+const encuestaRouter = require('./routes/encuesta-route');
 const permisosRouter = require('./routes/permisos-route');
 const usuariosRouter = require('./routes/usuarios-route');
 const usuariosFront = require('./routes/usuario-front-route');
@@ -45,6 +46,7 @@ const dir = path.join(__dirname, 'uploads');
 
 app.use('/uploads',  passport.authenticate('jwt', {session: false}), express.static(dir));
 app.use('/api/roles', passport.authenticate('jwt', {session: false}), rolesRouter);
+app.use('/api/encuestas', passport.authenticate('jwt', {session: false}), encuestaRouter);
 app.use('/api/permisos', passport.authenticate('jwt', {session: false}), permisosRouter);
 app.use('/api/usuarios', passport.authenticate('jwt', {session: false}), usuariosRouter);
 app.use('/api/front', passport.authenticate('jwt', {session: false}), usuariosFront);
