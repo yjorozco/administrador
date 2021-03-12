@@ -7,7 +7,7 @@ class EncuestasDetalles extends Model {
                 primaryKey: true
             },
             id_encuestas: {
-                type: DataTypes.DATE,
+                type: DataTypes.INTEGER,
                 allowNull: false,
                 unique: true
             },

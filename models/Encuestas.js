@@ -8,8 +8,7 @@ class Encuestas extends Model {
             },
             fecha: {
                 type: DataTypes.DATE,
-                allowNull: false,
-                unique: true
+                allowNull: false
             },
             id_usuarios: {
                 type: DataTypes.INTEGER,
@@ -46,7 +45,7 @@ class Encuestas extends Model {
     }
 
     static associate(models) {
-        this.hasMany(models.EncuestasDetalles, { foreignKey: 'id_usuarios', sourceKey: 'id', as:'EncuestasDetalles' })  
+        this.hasMany(models.EncuestasDetalles, { foreignKey: 'id_encuestas', as:'EncuestasDetalles' })  
         this.belongsTo(models.Usuarios, { foreignKey: 'id_usuarios', targetKey: 'id', as: 'Encuestas' }) 
     }
 }

@@ -27,7 +27,7 @@ class Preguntas extends Model {
 
     static associate(models) {
         this.belongsToMany(models.Intensidades, { through: models.PreguntasIntensidades, foreignKey: 'id_preguntas', as: 'Intensidades' })
-        this.hasMany(models.EncuestasDetalles, { as:'EncuestasDetalles' })  
+        this.hasMany(models.EncuestasDetalles, { foreignKey: 'id_preguntas', as:'EncuestasDetalles' })  
 
     }
 }

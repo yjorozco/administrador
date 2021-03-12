@@ -3,7 +3,7 @@ const { validationResult } = require('express-validator');
 const db = require('../database/asociaciones');
 const dateFormat = require('dateformat');
 const { Op } = require("sequelize");
-const Sequelize = require('sequelize');
+const { QueryTypes } = require('sequelize');
 
 exports.procesarEncuesta = async (req, res, next) => {
     const errors = validationResult(req);
@@ -19,30 +19,29 @@ exports.procesarEncuesta = async (req, res, next) => {
             next(new HttpError('Datos invalidos', 422));
         }
 
-        const intensidadesObject = await db.Intensidades.findAll({
-            atributes: ['id', 'nombre','valor'],
-            where: {
-                id: { [Op.in]: intensidades }
-            }        
+        let suma=0;
+        for (const respuesta in respuestas) {
+            let intensidad = await db.Intensidades.findOne({
+                where: {
+                    id: respuestas[respuesta]
+                }
+            })
+            suma+=await intensidad.valor;
+        }
+
+        const promedio = Math.round(suma/intensidades.length);
+ 
+        const intentidadObject =  await db.Intensidades.findOne({
+            where:{
+                valor: promedio
+            }
         })
 
-        console.log(intensidadesObject);
-
-        const total = intensidadesObject.reduce((a, b) => a + b.valor, 0);
-
-        console.log(total);
-        /* const numero = await respuestas.length;
-         const intensidadValor = Math.round(intensidadesSuma/numero);
-         const intensidad = await db.Intensidades.findAll(
-             { where: { 'valor': intensidadValor } }
-         )
-         let fechaSismo = await fecha + ' ' + hora;
-         console.log(intensidad);
-         fechaSismo = dateFormat(fechaSismo, "yyyy-mm-dd h:MM:ss");
+   
          const encuestas = await db.Encuestas.create({
              'id_usuarios': usuario.id,
-             'fecha': fechaSismo,
-             'intensidad': intensidad.nombre
+             'fecha':dateFormat(fecha, "yyyy-mm-dd h:MM:ss"),
+             'intensidad': intentidadObject.nombre
  
          }, {
              fields: [
@@ -51,17 +50,12 @@ exports.procesarEncuesta = async (req, res, next) => {
                  'intensidad'
              ], transaction: t
          })
- 
-         for (respuesta of respuestas) {
-             let intensidad = await db.Intensidades.findOne({
-                 where: {
-                     id_intensidad
-                 }
-             })
+        const id_encuestas = await encuestas.id;
+        for (const respuesta in respuestas) {
              await db.EncuestasDetalles.create({
-                 'id_encuestas': encuestas.id,
-                 'id_preguntas': fechaSismo,
-                 'id_intensidades': intensidad.id
+                  id_encuestas,
+                 'id_preguntas': parseInt(respuesta),
+                 'id_intensidades': parseInt(respuestas[respuesta])
  
              }, {
                  fields: [
@@ -72,9 +66,8 @@ exports.procesarEncuesta = async (req, res, next) => {
              })
          }
  
-         //await usuario.setEncuestasDetalles(roles, { fields: ["id_encuestas", "id_preguntas","id_intesidades"], transaction: t });
-         await t.commit();*/
-        res.status(201).json({ mensaje: 'usuario creado' });
+         await t.commit();
+        res.status(201).json({ mensaje: 'encuesta creada' });
     } catch (e) {
         console.log(e);
         try {
