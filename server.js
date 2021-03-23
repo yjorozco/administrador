@@ -49,7 +49,7 @@ app.use('/api/roles', passport.authenticate('jwt', {session: false}), rolesRoute
 app.use('/api/encuestas', passport.authenticate('jwt', {session: false}), encuestaRouter);
 app.use('/api/permisos', passport.authenticate('jwt', {session: false}), permisosRouter);
 app.use('/api/usuarios', passport.authenticate('jwt', {session: false}), usuariosRouter);
-app.use('/api/front', passport.authenticate('jwt', {session: false}), usuariosFront);
+app.use('/api/front', usuariosFront);
 app.use('/api/geografia', passport.authenticate('jwt', {session: false}), geografiaRouter);
 app.use('/api/preguntas', passport.authenticate('jwt', {session: false}), preguntasRouter);
 app.use('/api/auth', auth);

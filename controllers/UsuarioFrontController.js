@@ -17,12 +17,13 @@ exports.registrarUsuario = async (req, res, next) => {
         const {
             nombre,
             apellido,
-            foto,
             direccion,
             telefono,
             correo,
             password
         } = req.body;
+
+        const foto='avatar.png';
 
         const passwordHash = await bcrypt.hash(password, 10);
         const codigo_activacion = cryptoRandomString({ length: 10 });
@@ -32,6 +33,7 @@ exports.registrarUsuario = async (req, res, next) => {
             direccion,
             telefono,
             correo,
+            foto,
             activo: false,
             codigo_activacion,
             'password': passwordHash
@@ -127,17 +129,16 @@ exports.recuperarPassword = async (req, res, next) => {
 exports.activarUsuario = async (req, res, next) => {
     const errors = validationResult(req);
     const t = await db.sequelize.transaction();
-    const usuario = await db.Usuarios.findOne({
-        where: {
-            correo
-        }
-    })
+
     try {
         if (!errors.isEmpty()) {
             console.log(errors);
             next(new HttpError('Datos invalidos', 422));
         }
+
+
         const { codigo_activacion } = req.body;
+
         const usuario = await db.Usuarios.findOne({
             where: {
                 codigo_activacion
