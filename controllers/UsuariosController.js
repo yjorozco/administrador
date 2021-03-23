@@ -36,7 +36,7 @@ exports.agregarUsuario = async (req, res, next) => {
             roles } = await req.body;
 
         const passwordHash = await bcrypt.hash(password, 10);
-        if(foto) foto='avatar.png';
+        if(!foto) foto='avatar.png';
         const usuario = await db.Usuarios.create({
             nombre,
             apellido,
@@ -81,6 +81,29 @@ exports.agregarUsuario = async (req, res, next) => {
 exports.getUsuarioPorId = async (req, res, next) => {
     const id = await req.params.id;
     let usuario;
+    try {
+        usuario = await db.Usuarios.findOne({
+            attributes: { exclude: ['password'] },
+            include: [{ model: db.Roles, as: 'Roles' }],
+            where: {
+                id
+            }
+        })
+    } catch (err) {
+        console.log(err);
+        const error = new HttpError('hay un error, no se puede encontrar el usuario', 500);
+        return next(error);
+    }
+    if (!usuario) {
+        const error = next(new HttpError('no se puede encontrar el usuario con el id suministrado', 404));
+        return next(error);
+    }
+    res.status(200).json({ usuario });
+}
+
+exports.consultarPerfil = async (req, res, next) => {
+    let usuario = await req.user;
+    const { id } = await usuario;
     try {
         usuario = await db.Usuarios.findOne({
             attributes: { exclude: ['password'] },
@@ -161,6 +184,7 @@ exports.actualizarUsuario = async (req, res, next) => {
         }
 
         if (password === '') delete cuerpo['password'];
+        if (!foto || foto==='') delete cuerpo['foto'];
         await db.Usuarios.update(cuerpo,
             {
                 where: { id },
@@ -236,6 +260,8 @@ exports.eliminarUsuario = async (req, res, next) => {
 exports.cambiarPassword = async (req, res, next) => {
     const errors = validationResult(req);
     const t = await db.sequelize.transaction();
+    let usuario = await req.user;
+    const { id } = await usuario;
     try {
         if (!errors.isEmpty()) {
             console.log(errors);
@@ -248,7 +274,7 @@ exports.cambiarPassword = async (req, res, next) => {
         } = req.body;
         const usuario = await db.Usuarios.findOne({
             where: {
-                correo
+                id
             }
         })
         if (!usuario) {
@@ -279,10 +305,10 @@ exports.cambiarPassword = async (req, res, next) => {
 }
 
 exports.actualizarPerfil = async (req, res, next) => {
-    const { id } = await req.params;
+    let usuario = await req.user;
+    const { id } = await usuario;
     const errors = validationResult(req);
     const t = await db.sequelize.transaction();
-
     const {
         nombre,
         apellido,
@@ -338,6 +364,7 @@ exports.actualizarPerfil = async (req, res, next) => {
         }
 
         if (password === '') delete cuerpo['password'];
+        if (!foto || foto==='') delete cuerpo['foto'];
         await db.Usuarios.update(cuerpo,
             {
                 where: { id },

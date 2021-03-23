@@ -15,16 +15,16 @@ passport.use(new LocalStrategy({
             .then(user => {
 
                 if (!user) {
-                    return cb(null, false, { message: 'Incorrect email' });
+                    return cb(null, false, { message: 'Correo invalido' });
                 }
 
                 bcrypt.compare(password, user.password).then(function (result) {
                     if (result) {
                         return cb(null, user, {
-                            message: 'Logged In Successfully'
+                            message: 'Ingreso Satisfactorio'
                         });
                     } else {
-                        return cb(null, false, { message: 'Incorrect password.' });
+                        return cb(null, false, { message: 'Password incorrecto' });
                     }
                 });
 
