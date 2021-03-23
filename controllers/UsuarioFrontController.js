@@ -60,7 +60,7 @@ exports.registrarUsuario = async (req, res, next) => {
         await enviarCorreo(usuario.correo, asunto, cuerpo);
 
         await t.commit();
-        res.status(201).json({ mensaje: 'usuario creado, verifique por correo su codigo de activación', usuario });
+        res.status(201).json({ mensaje: 'usuario creado, verifique por correo su codigo de activación' });
     } catch (e) {
         console.log(e);
         try {
