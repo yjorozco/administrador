@@ -14,4 +14,5 @@ router.post('/cambio', ACL('admin_cambiar_password'), [check('correo').not().isE
 router.post('/salvar-imagen', ACL('usuario_salvar_imagen'), upload.single('imagen'), salvarImagen);
 router.patch('/perfil', ACL('usuario_modificar_perfil'), [check('nombre').not().isEmpty().trim().escape(), check('apellido').not().isEmpty().trim().escape(), check('direccion').not().isEmpty().trim().escape(), check('correo').escape().trim().isEmail(), check('password').trim().escape()], actualizarPerfil);
 router.get('/perfil', ACL('usuario_consultar_perfil'), consultarPerfil);
+
 module.exports = router;
