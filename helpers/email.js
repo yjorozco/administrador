@@ -16,7 +16,7 @@ const enviarCorreo = async (correo, asunto, cuerpo) => {
         });
 
         let info = await transporter.sendMail({
-            from: 'portales@cnti.gob.ve',
+            from: '',
             to: correo,
             subject: asunto,
             text: cuerpo

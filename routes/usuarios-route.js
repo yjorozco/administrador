@@ -1,5 +1,5 @@
 const express = require('express');
-const { agregarUsuario, getTodosUsuarios, getUsuarioPorId, actualizarUsuario, eliminarUsuario, cambiarPassword, salvarImagen, actualizarPerfil } = require('../controllers/UsuariosController');
+const { agregarUsuario, getTodosUsuarios, getUsuarioPorId, actualizarUsuario, eliminarUsuario, cambiarPassword, salvarImagen, actualizarPerfil, consultarPerfil  } = require('../controllers/UsuariosController');
 const router = express.Router();
 const ACL = require('../middleware/acl');
 const { check } = require('express-validator');
@@ -12,7 +12,7 @@ router.delete('/:id', ACL('admin_eliminar_usuarios'), eliminarUsuario);
 router.patch('/:id', ACL('admin_modificar_usuarios'), [check('nombre').not().isEmpty().trim().escape(), check('apellido').not().isEmpty().trim().escape(), check('direccion').not().isEmpty().trim().escape(), check('correo').escape().trim().isEmail(), check('password').trim().escape()], actualizarUsuario);
 router.post('/cambio', ACL('admin_cambiar_password'), [check('correo').not().isEmpty().trim().escape(), check('password').not().isEmpty().trim().escape()], cambiarPassword);
 router.post('/salvar-imagen', ACL('usuario_salvar_imagen'), upload.single('imagen'), salvarImagen);
-router.patch('/perfil', ACL('usuario_modificar_perfil'), [check('nombre').not().isEmpty().trim().escape(), check('apellido').not().isEmpty().trim().escape(), check('direccion').not().isEmpty().trim().escape(), check('correo').escape().trim().isEmail(), check('password').trim().escape()], actualizarPerfil);
-router.get('/perfil', ACL('usuario_consultar_perfil'), consultarPerfil);
+router.post('/perfilActualizar', ACL('usuario_modificar_perfil'), [check('nombre').not().isEmpty().trim().escape(), check('apellido').not().isEmpty().trim().escape(), check('direccion').not().isEmpty().trim().escape(), check('correo').escape().trim().isEmail(), check('password').trim().escape()], actualizarPerfil);
+router.post('/perfil', ACL('usuario_consultar_perfil'), consultarPerfil);
 
 module.exports = router;

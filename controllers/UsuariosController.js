@@ -103,13 +103,12 @@ exports.getUsuarioPorId = async (req, res, next) => {
 
 exports.consultarPerfil = async (req, res, next) => {
     let usuario = await req.user;
-    const { id } = await usuario;
     try {
         usuario = await db.Usuarios.findOne({
             attributes: { exclude: ['password'] },
             include: [{ model: db.Roles, as: 'Roles' }],
             where: {
-                id
+                id: usuario.id
             }
         })
     } catch (err) {
@@ -318,7 +317,6 @@ exports.actualizarPerfil = async (req, res, next) => {
         correo,
         password
      } = req.body;
-    let usuario;
     let fotoVieja;
     const passwordHash = await bcrypt.hash(password, 10);
     try {
