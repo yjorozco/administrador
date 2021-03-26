@@ -7,7 +7,7 @@ const enviarCorreo = async (correo, asunto, cuerpo) => {
 
         let transporter = nodemailer.createTransport({
             host: "",
-            port: 465,
+            port: 25,
             secure: true, // upgrade later with STARTTLS          
             auth: {
                 user: '',

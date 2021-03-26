@@ -105,7 +105,7 @@ exports.consultarPerfil = async (req, res, next) => {
     let usuario = await req.user;
     try {
         usuario = await db.Usuarios.findOne({
-            attributes: { exclude: ['password'] },
+            attributes: { exclude: ['password', 'codigo_activacion'] },
             include: [{ model: db.Roles, as: 'Roles' }],
             where: {
                 id: usuario.id

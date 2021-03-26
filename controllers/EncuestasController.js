@@ -7,7 +7,7 @@ const dateFormat = require('dateformat');
 exports.procesarEncuesta = async (req, res, next) => {
     const errors = validationResult(req);
     const t = await db.sequelize.transaction();
-    const { fecha, hora, respuestas } = req.body;
+    const { fecha, respuestas, ip, longitud, latitud } = req.body;
     let usuario = await req.user;
 
     const intensidades = Object.values(respuestas);
@@ -39,14 +39,18 @@ exports.procesarEncuesta = async (req, res, next) => {
    
          const encuestas = await db.Encuestas.create({
              'id_usuarios': usuario.id,
-             'fecha':dateFormat(fecha, "UTC:yyyy-mm-dd'T'HH:MM:ss'Z'"),
-             'intensidad': intentidadObject.nombre
- 
+             'intensidad': intentidadObject.nombre,
+             ip,
+             'longitud': parseFloat(longitud),
+             'latitud': parseFloat(latitud)
          }, {
              fields: [
                  'id_usuarios',
                  'fecha',
-                 'intensidad'
+                 'intensidad',
+                 'ip',
+                 'longitud',
+                 'latitud'
              ], transaction: t
          })
         const id_encuestas = await encuestas.id;

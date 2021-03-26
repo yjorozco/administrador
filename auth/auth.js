@@ -12,7 +12,7 @@ router.post('/login', function (req, res, next) {
 
         if (err || !user) {
             return res.status(400).json({
-                message: info ? info.message : 'Login failed',
+                message: info ? info.message : 'Autenticación Fallida',
                 user: user
             });
         }
@@ -23,9 +23,10 @@ router.post('/login', function (req, res, next) {
                 res.send(err);
             }
 
-            const token = jwt.sign({ user }, 'your_jwt_secret');
 
-            return res.json({ user, token });
+            const token = jwt.sign({ user }, '76175d01f9577203f737e74485ece6f843fcbf75');
+
+            return res.json({ token });
         });
     })
         (req, res);

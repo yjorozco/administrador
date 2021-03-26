@@ -21,7 +21,7 @@ passport.use(new LocalStrategy({
                 bcrypt.compare(password, user.password).then(function (result) {
                     if (result) {
                         return cb(null, user, {
-                            message: 'Ingreso Satisfactorio'
+                            message: 'Ingreso Satisfactoriamente'
                         });
                     } else {
                         return cb(null, false, { message: 'Password incorrecto' });
@@ -38,7 +38,7 @@ passport.use(new LocalStrategy({
 
 passport.use(new JWTStrategy({
     jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
-    secretOrKey: 'your_jwt_secret'
+    secretOrKey: '76175d01f9577203f737e74485ece6f843fcbf75'
 },
     function (jwtPayload, cb) {
         return Usuarios.findOne({ where: {id:jwtPayload.user.id}})

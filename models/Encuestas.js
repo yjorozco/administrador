@@ -6,10 +6,6 @@ class Encuestas extends Model {
                 type: DataTypes.INTEGER,
                 primaryKey: true
             },
-            fecha: {
-                type: DataTypes.DATE,
-                allowNull: false
-            },
             id_usuarios: {
                 type: DataTypes.INTEGER,
                 allowNull: false
@@ -32,6 +28,18 @@ class Encuestas extends Model {
             },
             intensidad: {
                 type: DataTypes.TEXT,
+                allowNull: false
+            },
+            ip: {
+                type: DataTypes.TEXT,
+                allowNull: false
+            },
+            longitud: {
+                type: DataTypes.DECIMAL,
+                allowNull: false
+            },
+            latitud: {
+                type: DataTypes.DECIMAL,
                 allowNull: false
             },
 
