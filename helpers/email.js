@@ -6,17 +6,17 @@ const enviarCorreo = async (correo, asunto, cuerpo) => {
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
         let transporter = nodemailer.createTransport({
-            host: "correo.cnti.gob.ve",
-            port: 465,
+            host: "",
+            port: 25,
             secure: true, // upgrade later with STARTTLS          
             auth: {
-                user: 'portales@cnti.gob.ve',
-                pass: 'CNTI##portales',
+                user: '',
+                pass: '',
             },
         });
 
         let info = await transporter.sendMail({
-            from: 'portales@cnti.gob.ve',
+            from: '',
             to: correo,
             subject: asunto,
             text: cuerpo
