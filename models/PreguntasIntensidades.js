@@ -1,7 +1,7 @@
 const { DataTypes, Model } = require('sequelize');
 const sequelize = require('../database/database');
-const Preguntas = require('./Preguntas');
-const Intensidades = require('./Intensidades');
+const { Preguntas } = require('../database/asociaciones');
+const { Intensidades } = require('../database/asociaciones');
 class PreguntasIntensidades extends Model {
     static init(sequelize, DataTypes) {
         return super.init({
@@ -37,8 +37,9 @@ class PreguntasIntensidades extends Model {
     }
 
     static associate(models) {
-        this.belongsTo(models.Preguntas, { foreignKey: 'id_preguntas' });
-        this.belongsTo(models.Intensidades, { foreignKey: 'id_intensidades' })
+        this.belongsTo(models.Preguntas, { foreignKey: 'id_preguntas', as: 'Preguntas' });
+        this.belongsTo(models.Intensidades, { foreignKey: 'id_intensidades', as: 'Intensidades' })
+        this.hasMany(models.EncuestasDetalles, { foreignKey: 'id_preguntas_intensidades', as: 'EncuestasDetalles' })
     }
 }
 

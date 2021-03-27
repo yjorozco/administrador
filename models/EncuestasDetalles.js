@@ -1,4 +1,6 @@
 const { Model } = require('sequelize');
+const { PreguntasIntensidades } = require('../database/asociaciones');
+const { Encuestas } = require('../database/asociaciones');
 class EncuestasDetalles extends Model {
     static init(sequelize, DataTypes) {
         return super.init({
@@ -8,16 +10,17 @@ class EncuestasDetalles extends Model {
             },
             id_encuestas: {
                 type: DataTypes.INTEGER,
-                allowNull: false,
-                unique: true
+                references: {
+                    model: Encuestas,
+                    key: 'id'
+                }
             },
-            id_intensidades: {
+            id_preguntas_intensidades: {
                 type: DataTypes.INTEGER,
-                allowNull: false
-            },
-            id_preguntas: {
-                type: DataTypes.INTEGER,
-                allowNull: false
+                references: {
+                    model: PreguntasIntensidades,
+                    key: 'id'
+                }
             }
         }, {
             sequelize,
@@ -29,9 +32,10 @@ class EncuestasDetalles extends Model {
     }
 
     static associate(models) {
-        this.belongsTo(models.Encuestas, { foreignKey:'id_encuestas', targetKey:'id', as:'Encuestas' });
-        this.belongsTo(models.Intensidades, { foreignKey:'id_intensidades',  targetKey:'id', as:'Intensidades' });
-        this.belongsTo(models.Preguntas, { foreignKey:'id_preguntas', targetKey:'id', as:'Preguntas' });
+        this.belongsTo(models.Encuestas, { foreignKey: 'id_encuestas', targetKey: 'id', as: 'Encuestas' });
+        //  this.belongsTo(models.Intensidades, { foreignKey:'id_intensidades',  targetKey:'id', as:'Intensidades' });
+        //  this.belongsTo(models.Preguntas, { foreignKey:'id_preguntas', targetKey:'id', as:'Preguntas' });
+        this.belongsTo(models.PreguntasIntensidades, { foreignKey: 'id_preguntas_intensidades', targetKey: 'id', as: 'PreguntasIntensidades' });
     }
 }
 

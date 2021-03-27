@@ -1,6 +1,6 @@
 const { Model } = require('sequelize');
-const Roles = require('./Roles');
-const Usuarios = require('./Usuarios');
+const { Roles } = require('../database/asociaciones');
+const { Usuarios } = require('../database/asociaciones');
 class UsuariosRoles extends Model {
 
     static init(sequelize, DataTypes) {
@@ -34,8 +34,8 @@ class UsuariosRoles extends Model {
 
     static associate(models) {
 
-        this.belongsTo(models.Usuarios, { foreignKey: 'id_roles'  });
-        this.belongsTo(models.Roles, { foreignKey: 'id_usuarios'  }); 
+        this.belongsTo(models.Usuarios, { foreignKey: 'id_roles' });
+        this.belongsTo(models.Roles, { foreignKey: 'id_usuarios' });
     }
 }
 

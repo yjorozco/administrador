@@ -1,7 +1,7 @@
 const { DataTypes, Model } = require('sequelize');
 const sequelize = require('../database/database');
-const Roles = require('./Roles');
-const Permisos = require('./Permisos');
+const { Roles } = require('../database/asociaciones');
+const { Permisos } = require('../database/asociaciones');
 class RolesPermisos extends Model {
     static init(sequelize, DataTypes) {
         return super.init({

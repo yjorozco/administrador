@@ -91,8 +91,7 @@ ALTER TABLE public.encuestas OWNER TO postgres;
 CREATE TABLE public.encuestas_detalles (
     id integer DEFAULT nextval('public.encuesta_detalle_id_seq'::regclass) NOT NULL,
     id_encuestas integer NOT NULL,
-    id_intensidades integer NOT NULL,
-    id_preguntas integer NOT NULL
+    id_preguntas_intensidades integer
 );
 
 
@@ -3522,7 +3521,7 @@ COPY public.encuestas (id, id_usuarios, pais, estado, ciudad, codigo, intensidad
 -- Data for Name: encuestas_detalles; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.encuestas_detalles (id, id_encuestas, id_intensidades, id_preguntas) FROM stdin;
+COPY public.encuestas_detalles (id, id_encuestas, id_preguntas_intensidades) FROM stdin;
 \.
 
 
@@ -5603,19 +5602,11 @@ ALTER TABLE ONLY public.encuestas_detalles
 
 
 --
--- Name: encuestas_detalles encuestas_detalles_intensidades_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: encuestas_detalles encuestas_detallles_pre_inten_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.encuestas_detalles
-    ADD CONSTRAINT encuestas_detalles_intensidades_fk FOREIGN KEY (id_intensidades) REFERENCES public.intensidades(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: encuestas_detalles encuestas_detalles_preguntas_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.encuestas_detalles
-    ADD CONSTRAINT encuestas_detalles_preguntas_fk FOREIGN KEY (id_preguntas) REFERENCES public.preguntas(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT encuestas_detallles_pre_inten_fk FOREIGN KEY (id_preguntas_intensidades) REFERENCES public.preguntas_intensidades(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
