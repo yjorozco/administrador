@@ -72,7 +72,7 @@ exports.procesarEncuesta = async (req, res, next) => {
                     ], transaction: t
                 });
             }else{
-               // throw new Error();
+               throw new Error();
             }
         }        
         await t.commit();
