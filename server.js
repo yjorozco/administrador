@@ -3,6 +3,10 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 const passport = require("passport");
+const cors = require('cors');
+const helmet = require("helmet");
+app.use(helmet());
+
 require('./auth/passport');
 //const path = require('path');
 //const HttpError = require('./models/Error');
@@ -16,7 +20,7 @@ const preguntasRouter = require('./routes/preguntas-route');
 const auth = require('./auth/auth');
 const path = require('path');
 
-
+app.use(cors())
 app.use(bodyParser.json());
 
 
@@ -42,13 +46,13 @@ if (process.env.NODE_ENV === 'production') {
     next();
 });*/
 
-app.use((req, res, next) => {
+/*app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', 'Authorization, X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Allow-Request-Method');
     res.header('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS, PUT, DELETE');
     res.header('Allow', 'GET, POST, PATCH, OPTIONS, PUT, DELETE');
     next();
-});
+});*/
 
 
 const dir = path.join(__dirname, 'uploads');
