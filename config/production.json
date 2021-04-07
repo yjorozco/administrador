@@ -1,0 +1,28 @@
+{
+  "Config": {
+    "dbConfig": {
+      "host": "localhost",
+      "database":"funvisis",
+      "user": "postgres",
+      "password": "123456",
+      "dialect": "postgres",
+      "pool": {
+        "max": 100,
+        "min": 2,
+        "require": 1000,
+        "idle": 1000
+      },
+      "logging": false
+    },
+    "Email": {
+      "from":"portales@cnti.gob.ve",
+      "host": "correo.cnti.gob.ve",
+      "port": 465,
+      "secure": true,
+      "auth": {
+        "user": "portales@cnti.gob.ve",
+        "pass": "CNTI##portales"
+      }
+    }
+  }
+}

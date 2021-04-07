@@ -1,0 +1,28 @@
+{
+  "Config": {
+    "dbConfig": {
+      "host": "",
+      "user": "",
+      "password": "",
+      "database":"",
+      "dialect": "",
+      "pool": {
+        "max": 0,
+        "min": 0,
+        "require": 0,
+        "idle": 0
+      },
+      "logging": false
+    },
+    "Email": {
+      "from":"",
+      "host": "",
+      "port": 25,
+      "secure": true,
+      "auth": {
+        "user": "",
+        "pass": ""
+      }
+    }
+  }
+}

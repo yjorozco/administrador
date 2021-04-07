@@ -1,22 +1,26 @@
 const HttpError = require('../models/Error');
 const nodemailer = require("nodemailer");
-const enviarCorreo = async (correo, asunto, cuerpo) => {
+const configuracion = require('../config/Config');
 
+
+const enviarCorreo = async (correo, asunto, cuerpo) => {
     try {
+        const config = await configuracion('Email');
+        console.log(config);
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
         let transporter = nodemailer.createTransport({
-            host: "",
-            port: 25,
-            secure: true, // upgrade later with STARTTLS          
+            host: config.host,
+            port: config.port,
+            secure: config.secure, // upgrade later with STARTTLS          
             auth: {
-                user: '',
-                pass: '',
+                user: config.auth.user,
+                pass: config.auth.pass
             },
         });
 
         let info = await transporter.sendMail({
-            from: '',
+            from: config.from,
             to: correo,
             subject: asunto,
             text: cuerpo

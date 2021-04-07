@@ -1,19 +1,24 @@
 const Sequelize= require('sequelize');
+const configuracion = require('../config/Config');
+
+
+const config = configuracion("DB");
+console.log(config);
 
 const sequelize = new Sequelize(
-    'funvisis',
-    'postgres',
-    '123456',
+    config.database,
+    config.user,
+    config.password,
     {
-        host: "localhost",
-        dialect:'postgres',
+        host: config.host,
+        dialect:config.dialect,
         pool: {
-            max:100,
-            min:2,
-            require: 10000,
-            idle: 10000
+            max:config.pool.max,
+            min:config.pool.min,
+            require: config.pool.require,
+            idle: config.idle
         },
-        logging: false
+        logging: config.logging
     },
     
 );
