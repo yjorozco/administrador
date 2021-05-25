@@ -6,9 +6,9 @@ const passport = require('passport');
 
 
 /* POST login. */
-router.post('/login', function (req, res, next) {
+router.post('/login', async (req, res, next)  => {
 
-    passport.authenticate('local', { session: false }, (err, user, info) => {
+    await passport.authenticate('local', { session: false }, async (err, user, info) => {
 
         if (err || !user) {
             return res.status(400).json({
@@ -16,9 +16,9 @@ router.post('/login', function (req, res, next) {
                 user: user
             });
         }
-
-
-        req.login(user, { session: false }, (err) => {
+        console.log(user);
+        
+        req.login(user, { session: false }, async(err) => {
             if (err) {
                 res.send(err);
             }
@@ -28,9 +28,7 @@ router.post('/login', function (req, res, next) {
 
             return res.json({ token });
         });
-    })
-        (req, res);
-
+    })(req, res);
 });
 
 module.exports = router;

@@ -6,7 +6,17 @@ const cors = require('cors');
 const helmet = require("helmet");
 
 const app = express();
+app.use(cors({ 
+  'allowedHeaders': ['sessionId', 'Content-Type', 'x-requested-with','authorization'],
+  'exposedHeaders': ['sessionId'],
+  'origin': '*',
+  'methods': 'GET,HEAD,PUT,PATCH,POST,OPTIONS,DELETE',
+  'preflightContinue': false, 
+  'credentials': false 
+}));
 app.use(helmet());
+app.use(bodyParser.json());
+
 
 require('./auth/passport');
 
@@ -19,9 +29,6 @@ const geografiaRouter = require('./routes/geografia-route');
 const preguntasRouter = require('./routes/preguntas-route');
 const auth = require('./auth/auth');
 const path = require('path');
-
-app.use(cors())
-app.use(bodyParser.json());
 
 const dir = path.join(__dirname, 'uploads');
 
