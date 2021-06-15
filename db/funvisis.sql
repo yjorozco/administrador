@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 11.9 (Debian 11.9-0+deb10u1)
--- Dumped by pg_dump version 11.9 (Debian 11.9-0+deb10u1)
+-- Dumped from database version 11.10 (Debian 11.10-0+deb10u1)
+-- Dumped by pg_dump version 11.10 (Debian 11.10-0+deb10u1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -180,7 +180,8 @@ ALTER SEQUENCE public.permisos_id_seq OWNED BY public.permisos.id;
 CREATE TABLE public.preguntas (
     nombre character varying(500) NOT NULL,
     orden integer,
-    id integer NOT NULL
+    id integer NOT NULL,
+    habilitada boolean DEFAULT true
 );
 
 
@@ -214,9 +215,7 @@ ALTER SEQUENCE public.preguntas_id_seq OWNED BY public.preguntas.id;
 CREATE TABLE public.preguntas_intensidades (
     id integer NOT NULL,
     id_preguntas integer NOT NULL,
-    id_intensidades integer NOT NULL,
-    nombre character varying(500) NOT NULL,
-    orden integer NOT NULL
+    id_intensidades integer NOT NULL
 );
 
 
@@ -3776,6 +3775,9 @@ COPY public.permisos (id, nombre) FROM stdin;
 22	usuario_ver_encuestas
 23	usuario_modificar_perfil
 24	usuario_consultar_perfil
+25	usuario_agregar_preguntas
+26	usuario_modificar_preguntas
+27	usuario_buscar_intensidades
 \.
 
 
@@ -3783,11 +3785,18 @@ COPY public.permisos (id, nombre) FROM stdin;
 -- Data for Name: preguntas; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.preguntas (nombre, orden, id) FROM stdin;
-1. ¿Cómo sintió el sismo?	1	1
-2. ¿Cómo observó el comportamiento de objetos?	2	3
-3. ¿Efectos sobre las construcciones?	3	4
-4. ¿Efectos sobre el terreno?	4	5
+COPY public.preguntas (nombre, orden, id, habilitada) FROM stdin;
+1. ¿Cómo sintió el sismo?	1	1	t
+2. ¿Cómo observó el comportamiento de objetos?	2	3	t
+3. ¿Efectos sobre las construcciones?	3	4	t
+4. ¿Efectos sobre el terreno?	4	5	t
+ejemplo	10	20	t
+ejemplo	11	26	t
+ejemplo	13	27	t
+ejemplo	13	59	t
+ejemplo	13	61	t
+ejemplo	13	62	t
+ejemplo  123	13	60	t
 \.
 
 
@@ -3795,34 +3804,47 @@ COPY public.preguntas (nombre, orden, id) FROM stdin;
 -- Data for Name: preguntas_intensidades; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.preguntas_intensidades (id, id_preguntas, id_intensidades, nombre, orden) FROM stdin;
-2	1	2	No lo sentí.	0
-14	1	8	Sentido por todos, tanto dentro como fuera de las edificaciones.	5
-3	1	4	Algunos pocos lo sintieron en pisos altos de edificios	1
-8	1	5	Pocos lo sintieron. Sensación semejante al paso de un camión liviano.	2
-9	1	6	Sentido por muchos. Sensación semejante al paso de un camión pesado.	3
-13	1	7	Sentido por casi todos. Vibración parecida a la que produce un tren pasando muy cerca.	4
-17	3	2	No observé.	0
-18	3	5	Objetos colgantes pudieran oscilar.	1
-19	3	6	Platos, vasos, ventanas y otros objetos vibraron, tintinearon.	2
-20	3	7	Volcamiento de objetos inestables. Algunos árboles y postes pueden balancearse.	3
-21	3	8	Libros se caen de sus estantes y algunos muebles pesados se movieron.	4
-22	3	9	Objetos esbeltos se volcaron y muebles se desplazaron de su sitio.	5
-23	3	10	Posible caída de paredes, monumentos y otros objetos.	6
-25	4	2	No sabe.	0
-26	4	6	Crujir de paredes pero no aparecen grietas.	1
-27	4	7	Posibles grietas menores en frisos.	2
-28	4	8	Puede haber daño moderado en estructuras de baja calidad de construcción.	3
-29	4	9	Daño leve a moderado en estructuras ordinarias. Daños en paredes de mampostería.	4
-30	4	10	Daño severo en estructuras de baja calidad de construcción y posibles derrumbes parciales.	5
-31	4	11	Daño moderado en estructuras de buena calidad de construcción.	6
-32	4	12	Daño severo en muchas estructuras bien construidas.	7
-33	4	13	Sólo se mantienen de pie las estructuras de buena calidad de construcción.	8
-34	5	2	No sabe.	0
-35	5	10	Expulsión de lodo en el terreno.	1
-36	5	11	Grietas en el terreno.	2
-37	5	12	Agrietamiento notable en el terreno y deslizamiento de tierra.	3
-38	5	13	Hundimientos y deslizamientos en el terreno.	4
+COPY public.preguntas_intensidades (id, id_preguntas, id_intensidades) FROM stdin;
+2	1	2
+14	1	8
+3	1	4
+8	1	5
+9	1	6
+13	1	7
+17	3	2
+18	3	5
+19	3	6
+20	3	7
+21	3	8
+22	3	9
+23	3	10
+25	4	2
+26	4	6
+27	4	7
+28	4	8
+29	4	9
+30	4	10
+31	4	11
+32	4	12
+33	4	13
+34	5	2
+35	5	10
+36	5	11
+37	5	12
+38	5	13
+52	20	2
+53	20	3
+54	26	2
+55	26	3
+56	27	2
+57	27	3
+87	59	2
+88	59	3
+91	61	2
+92	61	3
+93	62	2
+94	62	3
+99	60	3
 \.
 
 
@@ -5254,6 +5276,9 @@ COPY public.roles_permisos (id, id_roles, id_permisos) FROM stdin;
 37	2	22
 38	2	23
 39	2	24
+40	1	25
+41	1	26
+42	1	27
 \.
 
 
@@ -5352,21 +5377,21 @@ SELECT pg_catalog.setval('public.intensidades_id_seq', 13, true);
 -- Name: permisos_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.permisos_id_seq', 24, true);
+SELECT pg_catalog.setval('public.permisos_id_seq', 27, true);
 
 
 --
 -- Name: preguntas_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.preguntas_id_seq', 5, true);
+SELECT pg_catalog.setval('public.preguntas_id_seq', 62, true);
 
 
 --
 -- Name: preguntas_intensidades_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.preguntas_intensidades_id_seq', 38, true);
+SELECT pg_catalog.setval('public.preguntas_intensidades_id_seq', 99, true);
 
 
 --
@@ -5380,7 +5405,7 @@ SELECT pg_catalog.setval('public.roles_id_seq', 11, true);
 -- Name: roles_permisos_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.roles_permisos_id_seq', 39, true);
+SELECT pg_catalog.setval('public.roles_permisos_id_seq', 42, true);
 
 
 --
@@ -5523,14 +5548,6 @@ ALTER TABLE ONLY public.preguntas_intensidades
 
 ALTER TABLE ONLY public.intensidades
     ADD CONSTRAINT un_nombre_intensidades UNIQUE (nombre);
-
-
---
--- Name: preguntas un_orden_preguntas; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.preguntas
-    ADD CONSTRAINT un_orden_preguntas UNIQUE (orden);
 
 
 --

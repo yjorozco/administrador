@@ -136,6 +136,7 @@ exports.actualizarUsuario = async (req, res, next) => {
         telefono,
         correo,
         password,
+        activo,
         roles } = req.body;
     let usuario;
     let fotoVieja;
@@ -154,6 +155,7 @@ exports.actualizarUsuario = async (req, res, next) => {
                 'direccion',
                 'telefono',
                 'correo',
+                'activo',
                 'password'
             ],
             where: {
@@ -179,6 +181,7 @@ exports.actualizarUsuario = async (req, res, next) => {
             direccion,
             telefono,
             correo,
+            activo,
             'password': passwordHash
         }
 
