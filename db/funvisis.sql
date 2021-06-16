@@ -78,7 +78,8 @@ CREATE TABLE public.encuestas (
     intensidad character varying(4) NOT NULL,
     ip character varying(25) NOT NULL,
     longitud double precision NOT NULL,
-    latitud double precision NOT NULL
+    latitud double precision NOT NULL,
+    fecha_creacion timestamp without time zone DEFAULT now()
 );
 
 
@@ -3512,7 +3513,13 @@ Luanshya	Z	Copperbelt	146275	\N	\N
 -- Data for Name: encuestas; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.encuestas (id, id_usuarios, pais, estado, ciudad, codigo, intensidad, ip, longitud, latitud) FROM stdin;
+COPY public.encuestas (id, id_usuarios, pais, estado, ciudad, codigo, intensidad, ip, longitud, latitud, fecha_creacion) FROM stdin;
+2	73	\N	\N	\N	\N	V	190.0.0.1	10	10	2021-06-15 21:24:46.80328
+3	73	\N	\N	\N	\N	V	190.0.0.1	10	10	2021-06-10 00:00:00
+4	73	\N	\N	\N	\N	V	190.0.0.1	10	10	2021-06-11 00:00:00
+5	73	\N	\N	\N	\N	V	190.0.0.1	10	10	2021-05-11 00:00:00
+6	73	\N	\N	\N	\N	V	190.0.0.1	10	10	2021-05-12 00:00:00
+7	73	\N	\N	\N	\N	V	190.0.0.1	10	10	2021-05-22 00:00:00
 \.
 
 
@@ -3778,6 +3785,7 @@ COPY public.permisos (id, nombre) FROM stdin;
 25	usuario_agregar_preguntas
 26	usuario_modificar_preguntas
 27	usuario_buscar_intensidades
+28	admin_consultar_encuestas
 \.
 
 
@@ -3844,7 +3852,7 @@ COPY public.preguntas_intensidades (id, id_preguntas, id_intensidades) FROM stdi
 92	61	3
 93	62	2
 94	62	3
-99	60	3
+110	60	3
 \.
 
 
@@ -5279,6 +5287,7 @@ COPY public.roles_permisos (id, id_roles, id_permisos) FROM stdin;
 40	1	25
 41	1	26
 42	1	27
+43	1	28
 \.
 
 
@@ -5363,7 +5372,7 @@ SELECT pg_catalog.setval('public.encuesta_detalle_id_seq', 2, true);
 -- Name: encuesta_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.encuesta_id_seq', 1, true);
+SELECT pg_catalog.setval('public.encuesta_id_seq', 7, true);
 
 
 --
@@ -5377,7 +5386,7 @@ SELECT pg_catalog.setval('public.intensidades_id_seq', 13, true);
 -- Name: permisos_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.permisos_id_seq', 27, true);
+SELECT pg_catalog.setval('public.permisos_id_seq', 28, true);
 
 
 --
@@ -5391,7 +5400,7 @@ SELECT pg_catalog.setval('public.preguntas_id_seq', 62, true);
 -- Name: preguntas_intensidades_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.preguntas_intensidades_id_seq', 99, true);
+SELECT pg_catalog.setval('public.preguntas_intensidades_id_seq', 110, true);
 
 
 --
@@ -5405,7 +5414,7 @@ SELECT pg_catalog.setval('public.roles_id_seq', 11, true);
 -- Name: roles_permisos_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.roles_permisos_id_seq', 42, true);
+SELECT pg_catalog.setval('public.roles_permisos_id_seq', 43, true);
 
 
 --

@@ -42,6 +42,10 @@ class Encuestas extends Model {
                 type: DataTypes.DECIMAL,
                 allowNull: false
             },
+            fecha_creacion: {
+                type: DataTypes.DATE,
+                allowNull: false
+            }
 
         }, {
             sequelize,

@@ -1,7 +1,7 @@
 const HttpError = require('../models/Error');
 const { validationResult } = require('express-validator');
 const db = require('../database/asociaciones');
-const dateFormat = require('dateformat');
+const { Op } = require("sequelize");
 
 
 exports.procesarEncuesta = async (req, res, next) => {
@@ -99,6 +99,26 @@ exports.consultarEncuesta = async (req, res, next) => {
             include: [{ model: db.EncuestasDetalles, as: 'EncuestasDetalles', attributes: { exclude: ['id_encuestas', 'id_preguntas_intensidades'] }, include: [{ model: db.PreguntasIntensidades, as: 'PreguntasIntensidades', include: [{ model: db.Preguntas, as: 'Preguntas' }, { model: db.Intensidades, as: 'Intensidades' }] }] }, { model: db.Usuarios, as: 'Usuarios', attributes: { exclude: ['password', 'codigo_activacion', 'activo'] } }],
             where: {
                 id_usuarios: usuario.id
+            }
+        });
+        res.status(200).json({
+            encuestas
+        })
+    } catch (e) {
+        console.log(e);
+        const error = new HttpError('ocurrio un error al encontrar las encuestas', 500);
+        return next(error)
+    }
+}
+
+exports.consultarEncuestaPorFecha = async (req, res, next) => {
+    try {
+        const { fecha_inicial, fecha_final } = await req.params;
+        const encuestas = await db.Encuestas.findAll({
+            attributes: { exclude: ['password', 'id_usuarios', 'pais', 'ciudad', 'estado', 'codigo'] },
+            include: [{ model: db.EncuestasDetalles, as: 'EncuestasDetalles', attributes: { exclude: ['id_encuestas', 'id_preguntas_intensidades'] }, include: [{ model: db.PreguntasIntensidades, as: 'PreguntasIntensidades', include: [{ model: db.Preguntas, as: 'Preguntas' }, { model: db.Intensidades, as: 'Intensidades' }] }] }, { model: db.Usuarios, as: 'Usuarios', attributes: { exclude: ['password', 'codigo_activacion', 'activo'] } }],
+            where: {
+                fecha_creacion: { [Op.between]: [fecha_inicial, fecha_final] }
             }
         });
         res.status(200).json({
