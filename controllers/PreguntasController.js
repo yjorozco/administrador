@@ -9,9 +9,6 @@ exports.getPreguntas = async (req, res, next) => {
     try {
         const preguntas = await db.Preguntas.findAll({
             include: [{ model: db.Intensidades, as: 'Intensidades' }],
-            where: {
-                'habilitada': true
-            },
             order: [['orden', 'ASC'], [Sequelize.literal('"Intensidades"."valor"'), 'ASC']]
         });
         res.status(200).json({
