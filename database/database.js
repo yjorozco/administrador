@@ -3,7 +3,7 @@ const configuracion = require('../config/Config');
 
 
 const config = configuracion("DB");
-console.log(config);
+
 
 const sequelize = new Sequelize(
     config.database,
