@@ -271,7 +271,6 @@ exports.cambiarPassword = async (req, res, next) => {
         }
 
         const {
-            correo,
             password
         } = req.body;
         const usuario = await db.Usuarios.findOne({
