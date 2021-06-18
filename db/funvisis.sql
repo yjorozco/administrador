@@ -3804,6 +3804,7 @@ ejemplo	13	27	t
 ejemplo	13	59	t
 ejemplo	13	61	t
 ejemplo	13	62	t
+ejemplo	13	63	t
 ejemplo  123	13	60	t
 \.
 
@@ -3852,7 +3853,9 @@ COPY public.preguntas_intensidades (id, id_preguntas, id_intensidades) FROM stdi
 92	61	3
 93	62	2
 94	62	3
-110	60	3
+111	63	2
+112	63	3
+113	60	3
 \.
 
 
@@ -5323,7 +5326,8 @@ COPY public.usuarios (id, nombre, apellido, foto, direccion, telefono, correo, p
 118	yamil	orozco	avatar.png	esquina pineda a toro piso	0212-8606877	yamil2@gmail.com	$2b$10$Gja6lC.eyUqsVGcThIb5YuXn.13jskypGzhNadBh2ahvpB9SkTrpC	t	\N
 119	yamil	orozco	avatar.png	esquina pineda a toro piso	0212-8606877	yamil234rf@gmail.com	$2b$10$QmoR9wKKRX5judqvzB30Hea7IIVlJJ2Cl09qwKkkpdXAMAvgBcMH6	t	\N
 121	yamil	orozco	avatar.png	esquina pineda a toro piso	0212-8606877	yamil234rwwwf@gmail.com	$2b$10$GoSbvRG2V5Xtp/StMdnZ5OC/7a9Fozq0PzkuKq0IkIygf3cdtfgJm	t	\N
-4	yamil	orozco	foto	22333	333334	yamiloro@gmail.com	$2b$10$0AqvYtrTa3LkgP0K88gjyu.u3HGpA51HJavkAjhaK/nwa/k9atp2K	t	
+126	Yamil	Orozco	avatar.png	la pastora	93933939	yamilorozco51@gmail.com	$2b$10$fdv4BHStU9egQ0fEe/tTN.ch.hMngapUBaEUpZ7ewK2ZOZ67T2.TK	t	\N
+4	yamil	orozco	foto	22333	333334	yamiloro@gmail.com	$2b$10$KACus8LMEBcPTZy0I3n4XeCZjWi8t7kiD44T2cu7LZHpf9qLFvLDW	t	
 \.
 
 
@@ -5393,14 +5397,14 @@ SELECT pg_catalog.setval('public.permisos_id_seq', 28, true);
 -- Name: preguntas_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.preguntas_id_seq', 62, true);
+SELECT pg_catalog.setval('public.preguntas_id_seq', 63, true);
 
 
 --
 -- Name: preguntas_intensidades_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.preguntas_intensidades_id_seq', 110, true);
+SELECT pg_catalog.setval('public.preguntas_intensidades_id_seq', 113, true);
 
 
 --
@@ -5421,7 +5425,7 @@ SELECT pg_catalog.setval('public.roles_permisos_id_seq', 43, true);
 -- Name: usuarios_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.usuarios_id_seq', 125, true);
+SELECT pg_catalog.setval('public.usuarios_id_seq', 126, true);
 
 
 --
