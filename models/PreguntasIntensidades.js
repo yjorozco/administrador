@@ -22,8 +22,11 @@ class PreguntasIntensidades extends Model {
                     model: Intensidades,
                     key: 'id'
                 }
+            },
+            nombre: {
+                type: DataTypes.TEXT,
+                allowNull: false
             }
-
         }, {
             sequelize,
             modelName: 'PreguntasIntensidades',

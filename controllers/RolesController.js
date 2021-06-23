@@ -24,7 +24,6 @@ exports.agregarRol = async (req, res, next) => {
             next(new HttpError('Datos invalidos', 422));
         }
         const { nombre, permisos } = req.body;
-        console.log(permisos);
         const nuevoRol = await db.Roles.create({
             nombre
         }, {

@@ -216,7 +216,8 @@ ALTER SEQUENCE public.preguntas_id_seq OWNED BY public.preguntas.id;
 CREATE TABLE public.preguntas_intensidades (
     id integer NOT NULL,
     id_preguntas integer NOT NULL,
-    id_intensidades integer NOT NULL
+    id_intensidades integer NOT NULL,
+    nombre character varying(500)
 );
 
 
@@ -3798,14 +3799,6 @@ COPY public.preguntas (nombre, orden, id, habilitada) FROM stdin;
 2. ¿Cómo observó el comportamiento de objetos?	2	3	t
 3. ¿Efectos sobre las construcciones?	3	4	t
 4. ¿Efectos sobre el terreno?	4	5	t
-ejemplo	10	20	t
-ejemplo	11	26	t
-ejemplo	13	27	t
-ejemplo	13	59	t
-ejemplo	13	61	t
-ejemplo	13	62	t
-ejemplo	13	63	t
-ejemplo  123	13	60	t
 \.
 
 
@@ -3813,49 +3806,34 @@ ejemplo  123	13	60	t
 -- Data for Name: preguntas_intensidades; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.preguntas_intensidades (id, id_preguntas, id_intensidades) FROM stdin;
-2	1	2
-14	1	8
-3	1	4
-8	1	5
-9	1	6
-13	1	7
-17	3	2
-18	3	5
-19	3	6
-20	3	7
-21	3	8
-22	3	9
-23	3	10
-25	4	2
-26	4	6
-27	4	7
-28	4	8
-29	4	9
-30	4	10
-31	4	11
-32	4	12
-33	4	13
-34	5	2
-35	5	10
-36	5	11
-37	5	12
-38	5	13
-52	20	2
-53	20	3
-54	26	2
-55	26	3
-56	27	2
-57	27	3
-87	59	2
-88	59	3
-91	61	2
-92	61	3
-93	62	2
-94	62	3
-111	63	2
-112	63	3
-113	60	3
+COPY public.preguntas_intensidades (id, id_preguntas, id_intensidades, nombre) FROM stdin;
+2	1	2	No lo sentí.
+14	1	8	Sentido por todos, tanto dentro como fuera de las edificaciones.
+3	1	4	Algunos pocos lo sintieron en pisos altos de edificios
+8	1	5	Pocos lo sintieron. Sensación semejante al paso de un camión liviano.
+9	1	6	Sentido por muchos. Sensación semejante al paso de un camión pesado.
+13	1	7	Sentido por casi todos. Vibración parecida a la que produce un tren pasando muy cerca.
+17	3	2	No observé.
+18	3	5	Objetos colgantes pudieran oscilar.
+19	3	6	Platos, vasos, ventanas y otros objetos vibraron, tintinearon.
+20	3	7	Volcamiento de objetos inestables. Algunos árboles y postes pueden balancearse.
+21	3	8	Libros se caen de sus estantes y algunos muebles pesados se movieron.
+22	3	9	Objetos esbeltos se volcaron y muebles se desplazaron de su sitio.
+23	3	10	Posible caída de paredes, monumentos y otros objetos.
+25	4	2	No sabe.
+26	4	6	Crujir de paredes pero no aparecen grietas.
+27	4	7	Posibles grietas menores en frisos.
+28	4	8	Puede haber daño moderado en estructuras de baja calidad de construcción.
+29	4	9	Daño leve a moderado en estructuras ordinarias. Daños en paredes de mampostería.
+30	4	10	Daño severo en estructuras de baja calidad de construcción y posibles derrumbes parciales.
+31	4	11	Daño moderado en estructuras de buena calidad de construcción.
+32	4	12	Daño severo en muchas estructuras bien construidas.
+33	4	13	Sólo se mantienen de pie las estructuras de buena calidad de construcción.
+34	5	2	No sabe.
+35	5	10	Expulsión de lodo en el terreno.
+36	5	11	Grietas en el terreno.
+37	5	12	Agrietamiento notable en el terreno y deslizamiento de tierra.
+38	5	13	Hundimientos y deslizamientos en el terreno.
 \.
 
 

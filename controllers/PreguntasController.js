@@ -51,7 +51,6 @@ exports.ingresarPreguntas = async (req, res, next) => {
             habilitada,
             intensidades } = await req.body;
 
-        console.log(req.body);
 
         const preguntas = await db.Preguntas.create({
             nombre,
@@ -66,8 +65,24 @@ exports.ingresarPreguntas = async (req, res, next) => {
                 'habilitada'
             ], transaction: t
         })
-        if (intensidades)
-            await preguntas.setIntensidades(intensidades, { fields: ["id_preguntas", "id_intensidades"], transaction: t });
+        if (intensidades){
+            const id_preguntas =  preguntas.id;
+            for (i = 0; i < intensidades.length; i++) {
+                let id_intensidades=intensidades[i][0];
+                let nombre=intensidades[i][1];
+                await db.PreguntasIntensidades.create({
+                    id_preguntas,
+                    id_intensidades,
+                    nombre                
+                }, {
+                    fields: [
+                        'id_preguntas',
+                        'id_intensidades',
+                        'nombre'   
+                    ], transaction: t
+                })
+            }
+        }
         await t.commit();
         res.status(201).json({ mensaje: 'pregunta creada' });
     } catch (e) {
@@ -136,14 +151,30 @@ exports.actualizarPreguntas = async (req, res, next) => {
             pregunta = await db.Preguntas.findOne({ where: { id: id }, include: [{ model: db.Intensidades, as: 'Intensidades' }], transaction: t });
 
             let encuestaDetalle = null;
-            if (pregunta){
+            if (pregunta) {
                 const preguntaIntensidad = await db.PreguntasIntensidades.findOne({ where: { id_preguntas: pregunta.id } });
                 encuestaDetalle = await db.EncuestasDetalles.findOne({ where: { id_preguntas_intensidades: preguntaIntensidad.id } });
             }
-            
+
             if (!encuestaDetalle && intensidades && pregunta) {
                 await pregunta.removeIntensidades(pregunta.Intensidades, { transaction: t });
-                await pregunta.addIntensidades(intensidades, { fields: ["id_preguntas", "id_intensidades"], transaction: t });
+                const id_preguntas =  pregunta.id;
+                for (i = 0; i < intensidades.length; i++) {
+                    let id_intensidades=intensidades[i][0];
+                    let nombre=intensidades[i][1];
+                    await db.PreguntasIntensidades.create({
+                        id_preguntas,
+                        id_intensidades,
+                        nombre                
+                    }, {
+                        fields: [
+                            'id_preguntas',
+                            'id_intensidades',
+                            'nombre'   
+                        ], transaction: t
+                    })
+                }
+                //await pregunta.addIntensidades(intensidades, { fields: ["id_preguntas", "id_intensidades", "nombre"], transaction: t });
                 await t.commit();
                 return res.status(200).json({
                     message: "Pregunta actualizada",
