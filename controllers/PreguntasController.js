@@ -21,6 +21,27 @@ exports.getPreguntas = async (req, res, next) => {
     }
 }
 
+exports.getPreguntasPorId = async (req, res, next) => {
+    try {
+        const { id } = await req.params;
+        const preguntas = await db.Preguntas.findAll({
+            include: [{ model: db.Intensidades, as: 'Intensidades' }],
+            order: [['orden', 'ASC'], [Sequelize.literal('"Intensidades"."valor"'), 'ASC']],
+            where: {
+                id
+            }
+        });
+        res.status(200).json({
+            preguntas
+        })
+    } catch (e) {
+        console.log(e);
+        const error = new HttpError('ocurrio un error al encontrar las preguntas', 500);
+        return next(error)
+    }
+}
+
+
 exports.getIntensidades = async (req, res, next) => {
     try {
         const intensidades = await db.Intensidades.findAll({
