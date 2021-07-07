@@ -94,12 +94,15 @@ exports.procesarEncuesta = async (req, res, next) => {
 exports.consultarEncuesta = async (req, res, next) => {
     try {
         const usuario = req.user;
-        const encuestas = await db.Encuestas.findAll({
+        const { limit, offset } = await req.params;
+        const encuestas = await db.Encuestas.findAndCountAll({
             attributes: { exclude: ['password', 'id_usuarios', 'pais', 'ciudad', 'estado', 'codigo'] },
             include: [{ model: db.EncuestasDetalles, as: 'EncuestasDetalles', attributes: { exclude: ['id_encuestas', 'id_preguntas_intensidades'] }, include: [{ model: db.PreguntasIntensidades, as: 'PreguntasIntensidades', include: [{ model: db.Preguntas, as: 'Preguntas' }, { model: db.Intensidades, as: 'Intensidades' }] }] }, { model: db.Usuarios, as: 'Usuarios', attributes: { exclude: ['password', 'codigo_activacion', 'activo'] } }],
             where: {
                 id_usuarios: usuario.id
-            }
+            },
+            limit:limit,
+            offset:offset
         });
         res.status(200).json({
             encuestas
